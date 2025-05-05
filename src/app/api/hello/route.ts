@@ -4,6 +4,6 @@ export async function GET() {
 
     console.log('server action called');
 
-    return NextResponse.json({ message: "Hello, World!" });
+    return NextResponse.json({ message: "Hello, World! Updated" });
 
 }
