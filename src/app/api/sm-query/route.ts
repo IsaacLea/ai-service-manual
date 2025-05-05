@@ -33,11 +33,14 @@ async function queryPineconeIndex(query: string) {
       });
 
     // Map hits into a list of PCResult objects
-    const results = response.result.hits.map(hit => ({
-        id: hit._id,
-        pageText: hit.fields.text,
-        pageNumber: hit.fields.page
-    }));
+    const results = response.result.hits.map(hit => {
+        const fields = hit.fields as { text: string; page: number }; // Explicitly define the structure
+        return {
+            id: hit._id,
+            pageText: fields.text,
+            pageNumber: fields.page
+        };
+    });
 
     return results;
 }
@@ -75,17 +78,10 @@ export async function GET(request: Request) {
         return NextResponse.json({ message: "Dummy response!" });
     }
 
-    //const query2 = "What is the torgue spec for the rear axle nut?" // For testing purposes, hardcoded query
-
     const pcResults = await queryPineconeIndex(query!)
 
     const aiResponse = await queryAIModel(query!, pcResults)
 
-    // console.log('AI response:', aiResponse);
-
-
-
     return NextResponse.json({ message: aiResponse });
-
 
 }
