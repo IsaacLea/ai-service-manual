@@ -7,8 +7,16 @@ import { QueryResult } from "./types";
 export default function Home() {
   const [message, setMessage] = useState("");
   const [query, setQuery] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleButtonClick = async () => {
+    if (!query.trim()) {
+      setError("Query is required.");
+      return;
+    }
+    setError("");
+    setLoading(true);
     try {
       const response = await fetch(`/api/sm-query?query=${encodeURIComponent(query)}`, {
         method: "GET",
@@ -21,6 +29,8 @@ export default function Home() {
     } catch (error) {
       console.error("Error fetching server action:", error);
       setMessage("An error occurred while fetching the server action.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,13 +49,17 @@ export default function Home() {
           placeholder="Enter your query"
           className="px-4 py-2 border rounded mb-4"
         />
+        {error && <p className="text-red-500 text-sm">{error}</p>}
         <button
           onClick={handleButtonClick}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className={`px-4 py-2 rounded text-white ${query.trim() && !loading ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-400 cursor-not-allowed'}`}
+          disabled={!query.trim() || loading}
         >
-          Submit Query
+          {loading ? "Loading..." : "Submit Query"}
         </button>
-        <MessageDisplay message={message} />
+        {message && 
+          <MessageDisplay message={message} />
+        }
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
 
