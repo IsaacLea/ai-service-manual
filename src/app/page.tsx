@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from "react";
+import MessageDisplay from "./components/MessageDisplay";
+import { QueryResult } from "./types";
 
 export default function Home() {
   const [message, setMessage] = useState("");
@@ -8,14 +10,14 @@ export default function Home() {
 
   const handleButtonClick = async () => {
     try {
-      const response = await fetch(`/api/hello?query=${encodeURIComponent(query)}`, {
+      const response = await fetch(`/api/sm-query?query=${encodeURIComponent(query)}`, {
         method: "GET",
       });
       if (!response.ok) {
         throw new Error("Failed to fetch server action");
       }
-      const data = await response.text();
-      setMessage(data);
+      const data: QueryResult = await response.json();
+      setMessage(data.message);
     } catch (error) {
       console.error("Error fetching server action:", error);
       setMessage("An error occurred while fetching the server action.");
@@ -43,9 +45,7 @@ export default function Home() {
         >
           Submit Query
         </button>
-        <div className="mt-4 p-4 bg-gray-100 text-gray-800 rounded"> {/* Added light grey box styling */}
-          {message && <p>{message}</p>}
-        </div>
+        <MessageDisplay message={message} />
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
 
