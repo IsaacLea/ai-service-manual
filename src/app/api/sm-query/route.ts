@@ -1,17 +1,16 @@
 import { NextResponse } from "next/server";
 import { Pinecone } from '@pinecone-database/pinecone';
 import OpenAI from "openai";
+import { ChatCompletionMessageParam } from "openai/src/resources/chat/completions.js";
 
-
-const PROMPT_INSTRUCTION = "You are a helpful agent for a motorcycle technician. You will only answer if the relevant information is available in the provided context. If the information is not available, please respond with 'I don't know.'"
 
 // Initialize Pinecone client
 const pc = new Pinecone({
     apiKey: process.env.NEXT_PUBLIC_API_KEY_PINECONE!,
 });
 
+// Initialize OpenAI client
 const openai = new OpenAI({
-    // apiKey: process.env.OPENAI_API_KEY,
     apiKey: process.env.NEXT_PUBLIC_API_KEY_OPENAI
 });
 
@@ -49,6 +48,10 @@ async function queryPineconeIndex(query: string) {
 
 async function queryAIModel(query: string, pcResults: PCResult[]) {
 
+    const instructionsParam: ChatCompletionMessageParam = {
+        role: "developer",
+        content: "You are a helpful agent for a motorcycle technician. You will only answer if the relevant information is available in the provided context. If the information is not available, please respond with 'I don't know.'" 
+    }
 
     let context = "";
     for (const result of pcResults) {
@@ -56,14 +59,19 @@ async function queryAIModel(query: string, pcResults: PCResult[]) {
         console.log(`Page ${result.pageNumber}`);
     }
 
-    const prompt = "Instructions: " + PROMPT_INSTRUCTION + `\n\n`
-      + "Context: " + context + `\n\n` 
-      + "User query: " + query + "\n\n"
+    const contextParam: ChatCompletionMessageParam = {
+        role: "developer",
+        content: "# Context `\n\n` " + context  
+    }
 
-    
+    const userParam: ChatCompletionMessageParam = {
+        role: "user",
+        content: query
+    }
+
     const response = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: prompt }],
+        messages: [instructionsParam, contextParam, userParam],
       });
 
     return response.choices[0]?.message?.content
@@ -74,7 +82,10 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('query');
-    console.log('Query parameter:', query);
+    
+    if (!query) {
+        return NextResponse.json({ error: "Query parameter is required." }, { status: 400 });
+    }
 
     if (query === "test") {
         return NextResponse.json({ message: "Dummy response!\nLine two" });
