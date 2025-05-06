@@ -18,13 +18,14 @@ const QueryInput: React.FC = () => {
     }
 
     setError("");
+    setMessage("")
     setLoading(true);
 
     try {
       const response = await fetch(`/api/sm-query?query=${encodeURIComponent(query)}`, {
         method: "GET",
       });
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch server action");
       }
@@ -40,13 +41,13 @@ const QueryInput: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center min-h-[80vh]">
       <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Enter your query"
-        className="px-4 py-2 border rounded mb-4"
+        className="px-4 py-2 border rounded mb-4 w-full sm:w-100"
       />
       {error && <p className="text-red-500 text-sm">{error}</p>}
       <button
