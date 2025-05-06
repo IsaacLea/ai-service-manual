@@ -47,7 +47,7 @@ const QueryInput: React.FC = () => {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Enter your query"
-        className="px-4 py-2 border rounded mb-4 w-full sm:w-100"
+        className="px-4 py-2 border rounded mb-4 w-9/10 sm:w-100"
       />
       {error && <p className="text-red-500 text-sm">{error}</p>}
       <button
@@ -57,7 +57,9 @@ const QueryInput: React.FC = () => {
       >
         {loading ? "Loading..." : "Submit Query"}
       </button>
-      {message && <MessageDisplay message={message} />}
+      <div className="w-9/10 sm:w-100">
+        {message && <MessageDisplay message={message} />}
+      </div>
     </div>
   );
 };

@@ -8,7 +8,7 @@ export default function Home() {
         <h1 className="text-2xl font-bold">Tiger 900 Service Manual</h1>
       </header>
 
-      <main className="w-full" >
+      <main className="w-full sm:w-100"  >
         <QueryInput />
       </main>
     </div>
