@@ -6,12 +6,12 @@ import { ChatCompletionMessageParam } from "openai/src/resources/chat/completion
 
 // Initialize Pinecone client
 const pc = new Pinecone({
-    apiKey: process.env.NEXT_PUBLIC_API_KEY_PINECONE!,
+    apiKey: process.env.API_KEY_PINECONE!,
 });
 
 // Initialize OpenAI client
 const openai = new OpenAI({
-    apiKey: process.env.NEXT_PUBLIC_API_KEY_OPENAI
+    apiKey: process.env.API_KEY_OPENAI
 });
 
 type PCResult = {
