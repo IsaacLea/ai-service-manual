@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MessageDisplay from "./components/MessageDisplay";
 import { QueryResult } from "./types";
 
@@ -9,6 +9,17 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+
+    // Make sure to clear the input field on browser refresh
+    setQuery("") 
+    //console.log("Component mounted or updated");
+
+    return () => {
+      //console.log("Component unmounted");
+    };
+  }, []);
 
   const handleButtonClick = async () => {
     if (!query.trim()) {
@@ -61,9 +72,9 @@ export default function Home() {
           <MessageDisplay message={message} />
         }
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
+      {/* <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
 
-      </footer>
+      </footer> */}
     </div>
   );
 }
