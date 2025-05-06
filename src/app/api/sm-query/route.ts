@@ -3,6 +3,8 @@ import { Pinecone } from '@pinecone-database/pinecone';
 import OpenAI from "openai";
 
 
+const PROMPT_INSTRUCTION = "You are a helpful agent for a motorcycle technician. You will only answer if the relevant information is available in the provided context. If the information is not available, please respond with 'I don't know.'"
+
 // Initialize Pinecone client
 const pc = new Pinecone({
     apiKey: process.env.NEXT_PUBLIC_API_KEY_PINECONE!,
@@ -51,12 +53,12 @@ async function queryAIModel(query: string, pcResults: PCResult[]) {
     let context = "";
     for (const result of pcResults) {
         context += `Page ${result.pageNumber}: ${result.pageText}\n\n`;
+        console.log(`Page ${result.pageNumber}`);
     }
 
-    const instructions = "You are a helpful agent for a motorcycle technician. You will only answer if the relevant information is available in the provided context. If the information is not available, please respond with 'I don't know.'\n\n"
-
-    console.log("Context: ", context)
-    const prompt = "Instructions: " + instructions+ `\n\n` + "Context: " + context + `\n\n` + "User query: " + query + "\n\n"
+    const prompt = "Instructions: " + PROMPT_INSTRUCTION + `\n\n`
+      + "Context: " + context + `\n\n` 
+      + "User query: " + query + "\n\n"
 
     
     const response = await openai.chat.completions.create({
@@ -75,12 +77,12 @@ export async function GET(request: Request) {
     console.log('Query parameter:', query);
 
     if (query === "test") {
-        return NextResponse.json({ message: "Dummy response!" });
+        return NextResponse.json({ message: "Dummy response!\nLine two" });
     }
 
     const pcResults = await queryPineconeIndex(query!)
 
-    const aiResponse = await queryAIModel(query!, pcResults)
+    const aiResponse = await queryAIModel(query!, pcResults);
 
     return NextResponse.json({ message: aiResponse });
 
