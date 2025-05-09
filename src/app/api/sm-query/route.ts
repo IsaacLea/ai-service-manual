@@ -56,7 +56,6 @@ async function queryAIModel(query: string, pcResults: PCResult[]) {
     let context = "";
     for (const result of pcResults) {
         context += `Page ${result.pageNumber}: ${result.pageText}\n\n`;
-        console.log(`Page ${result.pageNumber}`);
     }
 
     const contextParam: ChatCompletionMessageParam = {
@@ -87,7 +86,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "Query parameter is required." }, { status: 400 });
     }
 
-    if (query === "test") {
+    if (query.toLowerCase() === "test") {
         return NextResponse.json({ message: "Dummy response!\nLine two" });
     }
 
