@@ -27,11 +27,11 @@ async function queryPineconeIndex(query: string) {
     // Perform a query on the specified index with the given query string
     const response = await dense_index.searchRecords({
         query: {
-          topK: 10,
-          inputs: { text: query },
+            topK: 10,
+            inputs: { text: query },
         },
         // fields: ['chunk_text', 'category'],
-      });
+    });
 
     // Map hits into a list of PCResult objects
     const results = response.result.hits.map(hit => {
@@ -50,7 +50,7 @@ async function queryAIModel(query: string, pcResults: PCResult[]) {
 
     const instructionsParam: ChatCompletionMessageParam = {
         role: "developer",
-        content: "You are a helpful agent for a motorcycle technician. You will only answer if the relevant information is available in the provided context. If the information is not available, please respond with 'I don't know.'" 
+        content: "You are a helpful agent for a motorcycle technician. You will only answer if the relevant information is available in the provided context. If the information is not available, please respond with 'I was unable to find information on your question.  Try rephrasing.'"
     }
 
     let context = "";
@@ -61,7 +61,7 @@ async function queryAIModel(query: string, pcResults: PCResult[]) {
 
     const contextParam: ChatCompletionMessageParam = {
         role: "developer",
-        content: "# Context `\n\n` " + context  
+        content: "# Context `\n\n` " + context
     }
 
     const userParam: ChatCompletionMessageParam = {
@@ -72,7 +72,7 @@ async function queryAIModel(query: string, pcResults: PCResult[]) {
     const response = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: [instructionsParam, contextParam, userParam],
-      });
+    });
 
     return response.choices[0]?.message?.content
 
@@ -82,7 +82,7 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('query');
-    
+
     if (!query) {
         return NextResponse.json({ error: "Query parameter is required." }, { status: 400 });
     }
