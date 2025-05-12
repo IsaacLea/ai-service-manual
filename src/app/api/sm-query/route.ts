@@ -35,7 +35,7 @@ async function queryPineconeIndex(query: string) {
 
     // Map hits into a list of PCResult objects
     const results = response.result.hits.map(hit => {
-        const fields = hit.fields as { text: string; page: number }; // Explicitly define the structure
+        const fields = hit.fields as { text: string; page: number };
         return {
             id: hit._id,
             pageText: fields.text,
