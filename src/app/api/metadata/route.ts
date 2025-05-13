@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import { Pinecone } from '@pinecone-database/pinecone';
-import OpenAI from "openai";
-import { ChatCompletionMessageParam } from "openai/src/resources/chat/completions.js";
 import { ContentMetadata } from "@/app/lib/definitions";
 import { INDEX_NAME_TIGER900 } from "@/app/lib/constants";
 
@@ -11,10 +9,6 @@ const pc = new Pinecone({
     apiKey: process.env.API_KEY_PINECONE!,
 });
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-    apiKey: process.env.API_KEY_OPENAI
-});
 
 async function describePineconeIndex() {
 
@@ -38,11 +32,16 @@ export async function GET(request: Request) {
 
     const stats = await describePineconeIndex();
 
+    // const stats = {
+    //     dimension: 1536,
+    //     totalRecordCount: 1000
+    // }
+
     const metadata: ContentMetadata = {
         dimension: stats.dimension ?? 0,
         pageCount: stats.totalRecordCount ?? 0
     }
 
     return NextResponse.json(metadata);
-    
+
 }

@@ -34,14 +34,14 @@ export default function Upload() {
 
       const buffer = Buffer.from(await file.arrayBuffer());
 
-      let doc = await pdfjs.getDocument(buffer).promise;
+      const doc = await pdfjs.getDocument(buffer).promise;
 
-      let pdfPages: PageText[] = [];
+      const pdfPages: PageText[] = [];
 
       for (let i = 1; i <= doc.numPages; i++) {
-        let page = await doc.getPage(i);
-        let textContent = await page.getTextContent();
-        let textItems = textContent.items.map((item: any) => item.str).join(" ");
+        const page = await doc.getPage(i);
+        const textContent = await page.getTextContent();
+        const textItems = textContent.items.map((item: any) => item.str).join(" ");
 
         const pageContent: PageText = {
           page: i,

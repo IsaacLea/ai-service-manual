@@ -10,5 +10,5 @@ export type UploadContent = {
 
 export type PageText = {
     page: number;
-    text: String;
+    text: string;
 };
