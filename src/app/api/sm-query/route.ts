@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Pinecone } from '@pinecone-database/pinecone';
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/src/resources/chat/completions.js";
+import { INDEX_NAME_TIGER900 } from "@/app/lib/constants";
 
 
 // Initialize Pinecone client
@@ -22,7 +23,7 @@ type PCResult = {
 
 async function queryPineconeIndex(query: string) {
 
-    const dense_index = pc.Index("tiger-900-sm")
+    const dense_index = pc.Index(INDEX_NAME_TIGER900)
 
     // Perform a query on the specified index with the given query string
     const response = await dense_index.searchRecords({

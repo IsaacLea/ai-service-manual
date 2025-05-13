@@ -1,4 +1,4 @@
 export type ContentMetadata = {
-    id: number;
+    dimension: number;
     pageCount: number;
 };

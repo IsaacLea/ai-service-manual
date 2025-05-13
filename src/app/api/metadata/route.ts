@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { Pinecone } from '@pinecone-database/pinecone';
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/src/resources/chat/completions.js";
+import { ContentMetadata } from "@/app/lib/definitions";
+import { INDEX_NAME_TIGER900 } from "@/app/lib/constants";
 
 
 // Initialize Pinecone client
@@ -14,35 +16,13 @@ const openai = new OpenAI({
     apiKey: process.env.API_KEY_OPENAI
 });
 
-type MetadataResult = {
-    id: number;
-    pageCount: number;
-};
+async function describePineconeIndex() {
 
-async function queryPineconeIndex(query: string) {
+    const dense_index = pc.Index(INDEX_NAME_TIGER900)
 
-    const dense_index = pc.Index("tiger-900-sm")
+    const stats = await dense_index.describeIndexStats();
 
-    // Perform a query on the specified index with the given query string
-    const response = await dense_index.searchRecords({
-        query: {
-            topK: 10,
-            inputs: { text: query },
-        },
-        // fields: ['chunk_text', 'category'],
-    });
-
-    // Map hits into a list of PCResult objects
-    const results = response.result.hits.map(hit => {
-        const fields = hit.fields as { text: string; page: number };
-        return {
-            id: hit._id,
-            pageText: fields.text,
-            pageNumber: fields.page
-        };
-    });
-
-    return results;
+    return stats;
 }
 
 
@@ -56,14 +36,13 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "contentCode parameter is required." }, { status: 400 });
     }
 
-    //if (contentCode.toLowerCase() === "tiger900") {
-    return NextResponse.json({ id: 1, pageCount: 222 });
-    //}
+    const stats = await describePineconeIndex();
 
-    //const pcResults = await queryPineconeIndex(query!)
+    const metadata: ContentMetadata = {
+        dimension: stats.dimension ?? 0,
+        pageCount: stats.totalRecordCount ?? 0
+    }
 
-    //const aiResponse = await queryAIModel(query!, pcResults);
-
-    // NextResponse.json({ message: aiResponse });
-
+    return NextResponse.json(metadata);
+    
 }
