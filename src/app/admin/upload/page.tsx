@@ -9,6 +9,7 @@
  * Alternatively the file processing could be turned into a separate micro service, but that would be overkill for this project.
  */
 import { PageText, UploadContent } from "@/app/lib/definitions";
+import '@ungap/with-resolvers'; // Fixes runtime issue with pdfjs library not being able to resolve the Promise.withResolvers
 import { useState } from "react";
 import { pdfjs } from 'react-pdf';
 
