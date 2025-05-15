@@ -5,6 +5,7 @@ export type ContentMetadata = {
 
 export type UploadContent = {
     filename: string;
+    indexName: string;
     pages: PageText[];
 };
 

@@ -6,7 +6,7 @@ export async function POST(request: Request) {
 
         const content: UploadContent = await request.json();
 
-        console.log("PDF:", content.filename);
+        console.log("PDF:", content.indexName);
 
         return NextResponse.json({ message: "File received but process not implemented", fileName: content.filename });
     } catch (error) {

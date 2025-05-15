@@ -16,6 +16,7 @@ import { pdfjs } from 'react-pdf';
 export default function Upload() {
   const [file, setFile] = useState<File | null>(null);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+  const [indexName, setIndexName] = useState<string>("");
 
   // Setup the workerSrc for pdfjs
   // https://github.com/wojtekmaj/react-pdf/blob/main/packages/react-pdf/README.md#legacy-pdfjs-worker
@@ -55,6 +56,7 @@ export default function Upload() {
 
       const uploadContent: UploadContent = {
         filename: file.name,
+        indexName: indexName,
         pages: pdfPages,
       };
 
@@ -92,6 +94,18 @@ export default function Upload() {
             accept="application/pdf"
             onChange={handleFileChange}
             className="hidden"
+          />
+        </label>
+
+        <label className="mb-4 block">
+          <span className="block text-gray-700">Index Name</span>
+          <input
+            type="text"
+            value={indexName}
+            onChange={(e) => setIndexName(e.target.value)}
+            className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder="Enter index name"
+            required
           />
         </label>
 
