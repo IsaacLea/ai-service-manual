@@ -27,7 +27,7 @@ export default function Home() {
 
     if (value) {
       try {
-        const response = await fetch("/api/metadata?indexName=" + value);
+        const response = await fetch("/api/index/" + value);
         const data = await response.json();
         setMetadata(data);
       } catch (error) {

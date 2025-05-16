@@ -3,16 +3,12 @@ import { Pinecone } from '@pinecone-database/pinecone';
 import { ContentMetadata } from "@/app/lib/definitions";
 import { INDEX_NAME_TIGER900 } from "@/app/lib/constants";
 import { describePineconeIndex } from "@/app/lib/pineconeUtils";
+import { NextApiRequest } from "next";
 
 
-export async function GET(request: Request) {
+export async function GET(request: NextApiRequest, { params }: { params: Promise<{ indexName: string }> }) {
 
-    const { searchParams } = new URL(request.url);
-    const indexName = searchParams.get('indexName');
-
-    if (!indexName) {
-        return NextResponse.json({ error: "indexName parameter is required." }, { status: 400 });
-    }
+    const indexName = (await params).indexName;
 
     const stats = await describePineconeIndex(indexName);
 
