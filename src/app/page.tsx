@@ -1,19 +1,20 @@
-
 import ChatSelection from "./components/ChatSelection";
-import Image from "next/image";
-
+//
 export default function Home() {
-
   return (
-    <div className="grid justify-items-center min-h-screen">
-      <header className="row-start-1 mb-4 flex items-center space-x-4">
-        <Image src="/triumph.png" alt="Triumph Logo" width={60} height={40} className="w-15 h-10" />
-        <h1 className="text-2xl font-bold">Tiger 900 Service Manual</h1>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-200 flex flex-col items-center justify-center">
+      <header className="mb-8 flex flex-col items-center space-y-4">
 
-      <main className="w-full sm:w-100">
+        <h1 className="text-4xl font-extrabold text-blue-800 drop-shadow-lg">
+          AI Powered Content
+        </h1>
+        <p className="text-lg text-blue-700 font-medium">
+          Your smart motorcycle service assistant
+        </p>
+      </header>
+      <main className="w-full max-w-xl bg-white rounded-xl shadow-lg p-8">
         <ChatSelection />
       </main>
-    </div >
+    </div>
   );
 }
