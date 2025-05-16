@@ -5,6 +5,19 @@ const pinecone = new Pinecone({
     apiKey: process.env.API_KEY_PINECONE!,
 });
 
+export async function getIndexNames(): Promise<string[]> {
+
+    const indexList: IndexList = await pinecone.listIndexes();
+
+    if (Array.isArray(indexList.indexes)) {
+        return indexList.indexes.map(index => index.name);
+    } else {
+        console.error("Invalid index list format:", indexList);
+        return [];
+    }
+
+}
+
 export async function checkIndexExistence(indexName: string): Promise<boolean> {
     try {
         const indexList: IndexList = await pinecone.listIndexes();
@@ -32,7 +45,7 @@ export async function createIndex(indexName: string) {
 
 }
 
-export type PCResult = {
+export type PCQueryResult = {
     id: string;
     pageText: string;
     pageNumber: number;

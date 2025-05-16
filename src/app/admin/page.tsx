@@ -1,11 +1,25 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MetadataTable from "../components/MetadataTable";
 
 export default function Home() {
   const [selectedOption, setSelectedOption] = useState("");
   const [metadata, setMetadata] = useState(null);
+  const [indexes, setIndexes] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function fetchIndexes() {
+      try {
+        const response = await fetch("/api/index");
+        const data = await response.json();
+        setIndexes(data.indexes || []);
+      } catch (error) {
+        console.error("Error fetching indexes:", error);
+      }
+    }
+    fetchIndexes();
+  }, []);
 
   const handleSelectionChange = async (event: { target: { value: any; }; }) => {
     const value = event.target.value;
@@ -13,7 +27,7 @@ export default function Home() {
 
     if (value) {
       try {
-        const response = await fetch("/api/metadata?contentCode=" + value);
+        const response = await fetch("/api/metadata?indexName=" + value);
         const data = await response.json();
         setMetadata(data);
       } catch (error) {
@@ -34,9 +48,9 @@ export default function Home() {
           onChange={handleSelectionChange}
         >
           <option value="" disabled hidden>Select an option</option>
-          <option value="TIGER900">Tiger 900</option>
-          <option value="option2">Option 2</option>
-          <option value="option3">Option 3</option>
+          {indexes.map((idx) => (
+            <option key={idx} value={idx}>{idx}</option>
+          ))}
         </select>
 
         {metadata && (
