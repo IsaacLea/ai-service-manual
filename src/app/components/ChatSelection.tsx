@@ -28,8 +28,6 @@ const ChatSelection: React.FC = () => {
     setSelectedOption(event.target.value);
 
     if (event.target.value) {
-      console.log("Selected index:", event.target.value);
-
       router.push('/chat/' + event.target.value)
     }
   }

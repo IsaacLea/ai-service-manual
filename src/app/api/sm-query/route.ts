@@ -46,8 +46,6 @@ export async function GET(request: Request) {
     const query = searchParams.get('query');
     const indexName = searchParams.get('indexName');
 
-    console.log(indexName);
-
     if (!query) {
         return NextResponse.json({ error: "Query parameter is required." }, { status: 400 });
     }
@@ -61,8 +59,6 @@ export async function GET(request: Request) {
     }
 
     const pcResults = await queryPineconeIndex(indexName, query!)
-
-    console.log("Pinecone results: ", pcResults);
 
     const aiResponse = await queryAIModel(query!, pcResults);
 

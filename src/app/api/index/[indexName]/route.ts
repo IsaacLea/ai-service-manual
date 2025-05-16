@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { ContentMetadata } from "@/app/lib/definitions";
 import { describePineconeIndex } from "@/app/lib/pineconeUtils";
-import { NextApiRequest } from "next";
 
-export async function GET(request: NextApiRequest, { params }: { params: Promise<{ indexName: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ indexName: string }> }) {
 
     const indexName = (await params).indexName;
 
