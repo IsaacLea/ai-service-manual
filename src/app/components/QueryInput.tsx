@@ -10,6 +10,8 @@ const QueryInput: React.FC = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const indexName = "tiger-900-sm";
+
   const handleButtonClick = async () => {
 
     if (!query.trim()) {
@@ -22,7 +24,8 @@ const QueryInput: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`/api/sm-query?query=${encodeURIComponent(query)}`, {
+
+      const response = await fetch(`/api/sm-query?indexName=${indexName}&query=${encodeURIComponent(query)}`, {
         method: "GET",
       });
 

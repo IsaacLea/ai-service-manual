@@ -2,50 +2,12 @@ import { NextResponse } from "next/server";
 import { Pinecone } from '@pinecone-database/pinecone';
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/src/resources/chat/completions.js";
-import { INDEX_NAME_TIGER900 } from "@/app/lib/constants";
-
-
-// Initialize Pinecone client
-const pc = new Pinecone({
-    apiKey: process.env.API_KEY_PINECONE!,
-});
+import { PCResult, queryPineconeIndex } from "@/app/lib/pineconeUtils";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
     apiKey: process.env.API_KEY_OPENAI
 });
-
-type PCResult = {
-    id: string;
-    pageText: string;
-    pageNumber: number;
-};
-
-async function queryPineconeIndex(query: string) {
-
-    const dense_index = pc.Index(INDEX_NAME_TIGER900)
-
-    // Perform a query on the specified index with the given query string
-    const response = await dense_index.searchRecords({
-        query: {
-            topK: 10,
-            inputs: { text: query },
-        },
-        // fields: ['chunk_text', 'category'],
-    });
-
-    // Map hits into a list of PCResult objects
-    const results = response.result.hits.map(hit => {
-        const fields = hit.fields as { text: string; page: number };
-        return {
-            id: hit._id,
-            pageText: fields.text,
-            pageNumber: fields.page
-        };
-    });
-
-    return results;
-}
 
 async function queryAIModel(query: string, pcResults: PCResult[]) {
 
@@ -82,16 +44,23 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('query');
+    const indexName = searchParams.get('indexName');
+
+    console.log(indexName);
 
     if (!query) {
         return NextResponse.json({ error: "Query parameter is required." }, { status: 400 });
+    }
+
+    if (!indexName) {
+        return NextResponse.json({ error: "indexName parameter is required." }, { status: 400 });
     }
 
     if (query.toLowerCase() === "test") {
         return NextResponse.json({ message: "Dummy response!\nLine two" });
     }
 
-    const pcResults = await queryPineconeIndex(query!)
+    const pcResults = await queryPineconeIndex(indexName, query!)
 
     const aiResponse = await queryAIModel(query!, pcResults);
 

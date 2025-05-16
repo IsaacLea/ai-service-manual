@@ -2,35 +2,19 @@ import { NextResponse } from "next/server";
 import { Pinecone } from '@pinecone-database/pinecone';
 import { ContentMetadata } from "@/app/lib/definitions";
 import { INDEX_NAME_TIGER900 } from "@/app/lib/constants";
-
-
-// Initialize Pinecone client
-const pc = new Pinecone({
-    apiKey: process.env.API_KEY_PINECONE!,
-});
-
-
-async function describePineconeIndex() {
-
-    const dense_index = pc.Index(INDEX_NAME_TIGER900)
-
-    const stats = await dense_index.describeIndexStats();
-
-    return stats;
-}
-
+import { describePineconeIndex } from "@/app/lib/pineconeUtils";
 
 
 export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
-    const contentCode = searchParams.get('contentCode');
+    const indexName = searchParams.get('indexName');
 
-    if (!contentCode) {
-        return NextResponse.json({ error: "contentCode parameter is required." }, { status: 400 });
+    if (!indexName) {
+        return NextResponse.json({ error: "indexName parameter is required." }, { status: 400 });
     }
 
-    const stats = await describePineconeIndex();
+    const stats = await describePineconeIndex(indexName);
 
     // const stats = {
     //     dimension: 1536,
