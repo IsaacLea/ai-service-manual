@@ -18,7 +18,7 @@ export default async function ChatContent({
       <header className="mb-8 flex flex-col items-center space-y-4">
         {indexName === INDEX_TIGER_900 && (
           <>
-            <h1 className="text-4xl font-extrabold text-blue-800 drop-shadow-lg">
+            <h1 className="text-xl font-extrabold text-blue-800 drop-shadow-lg">
               Tiger 900 Service Manual
             </h1>
             <Image src="/triumph.png" alt="Triumph Logo" width={60} height={40} className="w-15 h-10" />
