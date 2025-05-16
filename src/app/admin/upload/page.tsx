@@ -13,10 +13,12 @@ import '@ungap/with-resolvers'; // Fixes runtime issue with pdfjs library not be
 import { useState } from "react";
 import { pdfjs } from 'react-pdf';
 
+
 export default function Upload() {
   const [file, setFile] = useState<File | null>(null);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [indexName, setIndexName] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
   // Setup the workerSrc for pdfjs
   // https://github.com/wojtekmaj/react-pdf/blob/main/packages/react-pdf/README.md#legacy-pdfjs-worker
@@ -34,33 +36,26 @@ export default function Upload() {
 
     if (file) {
 
-      const buffer = Buffer.from(await file.arrayBuffer());
-
-      const doc = await pdfjs.getDocument(buffer).promise;
-
-      const pdfPages: PageText[] = [];
-
-      for (let i = 1; i <= doc.numPages; i++) {
-        const page = await doc.getPage(i);
-        const textContent = await page.getTextContent();
-        const textItems = textContent.items.map((item: any) => item.str).join(" ");
-
-        const pageContent: PageText = {
-          page: i,
-          text: textItems,
-        };
-
-        pdfPages.push(pageContent);
-
-      }
-
-      const uploadContent: UploadContent = {
-        filename: file.name,
-        indexName: indexName,
-        pages: pdfPages,
-      };
+      setLoading(true);
 
       try {
+
+        const buffer = Buffer.from(await file.arrayBuffer());
+
+        const pdfPages = await parsePDF(buffer);
+
+        if (pdfPages.length === 0) {
+          setUploadStatus("No text found in the PDF file.");
+          setLoading(false);
+          return;
+        }
+
+        const uploadContent: UploadContent = {
+          filename: file.name,
+          indexName: indexName,
+          pages: pdfPages,
+        };
+
         const response = await fetch("/api/upload", {
           method: "POST",
           body: JSON.stringify(uploadContent),
@@ -74,11 +69,59 @@ export default function Upload() {
       } catch (error) {
         console.error("Error uploading file:", error);
         setUploadStatus("An error occurred during upload.");
+      } finally {
+        setLoading(false);
       }
+
     } else {
       console.log("No file selected");
     }
   };
+
+  async function parsePDF(buffer: Buffer<ArrayBuffer>): Promise<PageText[]> {
+
+    const doc = await pdfjs.getDocument(buffer).promise;
+
+    const pdfPages: PageText[] = [];
+
+    for (let i = 1; i <= doc.numPages; i++) {
+
+      const page = await doc.getPage(i);
+      const textContent = await page.getTextContent();
+
+      let textItems = "";
+      let currentFontName = null;
+
+      for (const item of textContent.items) {
+
+        let isNewLine = false;
+
+        // When the font changes it indicates a new line
+        // This is a bit of a hack, but it works.  There is a hasEOL property but it indicates line wrap not new line
+        if ('fontName' in item && item.fontName) {
+          if (currentFontName && currentFontName !== item.fontName) {
+            isNewLine = true;
+          }
+          currentFontName = item.fontName;
+        }
+
+        if (isNewLine) {
+          textItems += "\n";
+        }
+        if ('str' in item && item.str) {
+          textItems += item.str;
+        }
+      }
+
+      const pageContent: PageText = {
+        page: i,
+        text: textItems,
+      };
+
+      pdfPages.push(pageContent);
+    }
+    return pdfPages;
+  }
 
   return (
     <div className="grid justify-items-center min-h-screen bg-gray-100 w-full">
@@ -122,9 +165,10 @@ export default function Upload() {
         {file && (
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className={`px-4 py-2 rounded text-white ${!loading ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-400 cursor-not-allowed'}`}
+            disabled={loading}
           >
-            Upload
+            {loading ? "Loading..." : "Upload"}
           </button>
         )}
 
