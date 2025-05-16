@@ -6,7 +6,7 @@
  * It then sends the extracted text to the server for processing.
  * 
  * Ideally, the file processing should be server side, but the react-pdf library is not compatible with server components. 
- * Alternatively the file processing could be turned into a separate micro service, but that would be overkill for this project.
+ * Alternatively the file processing could be turned into a separate micro service using a different language (java/python), but that would be overkill for this project.
  */
 import { PageText, UploadContent } from "@/app/lib/definitions";
 import '@ungap/with-resolvers'; // Fixes runtime issue with pdfjs library not being able to resolve the Promise.withResolvers

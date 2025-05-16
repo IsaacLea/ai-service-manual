@@ -66,10 +66,10 @@ export async function queryPineconeIndex(indexName: string, query: string) {
 
     // Map hits into a list of PCResult objects
     const results = response.result.hits.map(hit => {
-        const fields = hit.fields as { text: string; page: number };
+        const fields = hit.fields as { chunk_text: string; page: number };
         return {
             id: hit._id,
-            pageText: fields.text,
+            pageText: fields.chunk_text,
             pageNumber: fields.page
         };
     });
@@ -90,6 +90,10 @@ export async function upsertRecords(indexName: string, records: IntegratedRecord
 
     const dense_index = pinecone.Index(indexName);
 
-    await dense_index.upsertRecords(records);
+    const BATCH_SIZE = 96;
 
+    for (let i = 0; i < records.length; i += BATCH_SIZE) {
+        const batch = records.slice(i, i + BATCH_SIZE);
+        await dense_index.upsertRecords(batch);
+    }
 }

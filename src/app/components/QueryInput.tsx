@@ -4,13 +4,16 @@ import React, { useState } from "react";
 import MessageDisplay from "./MessageDisplay";
 import { QueryResult } from "../types";
 
-const QueryInput: React.FC = () => {
+interface QueryInputProps {
+  indexName: string;
+}
+
+const QueryInput: React.FC<QueryInputProps> = ({ indexName }) => {
+
   const [message, setMessage] = useState("");
   const [query, setQuery] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const indexName = "tiger-900-sm";
 
   const handleButtonClick = async () => {
 

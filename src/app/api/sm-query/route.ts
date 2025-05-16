@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { Pinecone } from '@pinecone-database/pinecone';
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/src/resources/chat/completions.js";
 import { PCQueryResult, queryPineconeIndex } from "@/app/lib/pineconeUtils";
@@ -62,6 +61,8 @@ export async function GET(request: Request) {
     }
 
     const pcResults = await queryPineconeIndex(indexName, query!)
+
+    console.log("Pinecone results: ", pcResults);
 
     const aiResponse = await queryAIModel(query!, pcResults);
 
