@@ -85,3 +85,11 @@ export async function describePineconeIndex(indexName: string) {
 
     return stats;
 }
+
+export async function upsertRecords(indexName: string, records: IntegratedRecord<RecordMetadata>[]) {
+
+    const dense_index = pinecone.Index(indexName);
+
+    await dense_index.upsertRecords(records);
+
+}
