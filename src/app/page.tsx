@@ -2,7 +2,7 @@ import ChatSelection from "./components/ChatSelection";
 //
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-200 flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center">
       <header className="mb-8 flex flex-col items-center space-y-4">
 
         <h1 className="text-4xl font-extrabold text-blue-800 drop-shadow-lg">

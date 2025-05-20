@@ -124,8 +124,8 @@ export default function Upload() {
   }
 
   return (
-    <div className="grid justify-items-center min-h-screen bg-gray-100 w-full">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-full">
+    <div className="grid justify-items-center h-full bg-gray-100 w-full">
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow-md w-full min-h-[32rem]">
         <h1 className="text-xl font-bold mb-4">Upload PDF</h1>
 
         <label className="mb-4 block">
