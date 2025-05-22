@@ -26,8 +26,6 @@ export const { auth, signIn, signOut } = NextAuth({
         Credentials({
             async authorize(credentials) {
 
-                console.log('Authorizing user with credentials:', credentials);
-
                 // Validate credentials using Zod
                 const parsedCredentials = z
                     .object({ userName: z.string(), password: z.string().min(6) })
@@ -37,28 +35,16 @@ export const { auth, signIn, signOut } = NextAuth({
                     const { userName, password } = parsedCredentials.data;
                     const user = await getUser(userName);
 
-                    console.log("User:", user);
-
-                    if (!user) {
-                        throw new Error('Missing User');
-                    };
+                    if (!user) return null;
 
                     // Simulate password check (replace with actual password check)
                     const passwordsMatch = password === user.password; // For testing only, remove in production
 
-                    console.log('Password1:', password);
-                    console.log('Password2:', user.password);
-
                     // Return the user if the password matches
                     if (passwordsMatch) return user;
-
-                    throw new Error("Password1: " + password + ", password2: " + user.password);
                 }
 
-                throw new Error('Missing credentials: ' + credentials + + ", Error: " + parsedCredentials.error.message);
-
-                // console.log('Invalid credentials');
-                // return null;
+                return null;
             },
         }),
     ],
