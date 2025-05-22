@@ -2,7 +2,7 @@
 
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
-export const dynamic = 'force-dynamic';
+
 // This function is used to authenticate the user using the credentials provider.
 export async function authenticate(
     prevState: string | undefined,
@@ -14,7 +14,7 @@ export async function authenticate(
         if (error instanceof AuthError) {
             switch (error.type) {
                 case 'CredentialsSignin':
-                    return 'Invalid credentials.';
+                    return 'Invalid credentials.' + error.message;
                 default:
                     return 'Something went wrong.';
             }

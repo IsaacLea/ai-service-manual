@@ -4,7 +4,6 @@ import { authConfig } from './auth.config';
 import { z } from 'zod';
 import type { User } from '@/app/lib/definitions';
 
-export const dynamic = 'force-dynamic';
 
 async function getUser(name: string): Promise<User | undefined> {
 
@@ -29,7 +28,6 @@ export const { auth, signIn, signOut } = NextAuth({
 
                 console.log('Authorizing user with credentials:', credentials);
 
-
                 // Validate credentials using Zod
                 const parsedCredentials = z
                     .object({ name: z.string(), password: z.string().min(6) })
@@ -41,7 +39,9 @@ export const { auth, signIn, signOut } = NextAuth({
 
                     console.log("User:", user);
 
-                    if (!user) return null;
+                    if (!user) {
+                        throw new Error('Missing User');
+                    };
 
                     // Simulate password check (replace with actual password check)
                     const passwordsMatch = password === user.password; // For testing only, remove in production
@@ -51,10 +51,14 @@ export const { auth, signIn, signOut } = NextAuth({
 
                     // Return the user if the password matches
                     if (passwordsMatch) return user;
+
+                    throw new Error("Password1: " + password + ", password2: " + user.password);
                 }
 
-                console.log('Invalid credentials');
-                return null;
+                throw new Error('Missing credentials');
+
+                // console.log('Invalid credentials');
+                // return null;
             },
         }),
     ],
