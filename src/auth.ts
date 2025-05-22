@@ -55,7 +55,7 @@ export const { auth, signIn, signOut } = NextAuth({
                     throw new Error("Password1: " + password + ", password2: " + user.password);
                 }
 
-                throw new Error('Missing credentials');
+                throw new Error('Missing credentials: ' + credentials + + ", Error: " + parsedCredentials.error.message);
 
                 // console.log('Invalid credentials');
                 // return null;
