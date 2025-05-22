@@ -2,7 +2,7 @@
 
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
-
+export const dynamic = 'force-dynamic';
 // This function is used to authenticate the user using the credentials provider.
 export async function authenticate(
     prevState: string | undefined,

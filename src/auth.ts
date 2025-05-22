@@ -4,6 +4,7 @@ import { authConfig } from './auth.config';
 import { z } from 'zod';
 import type { User } from '@/app/lib/definitions';
 
+export const dynamic = 'force-dynamic';
 
 async function getUser(name: string): Promise<User | undefined> {
 
