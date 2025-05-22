@@ -5,13 +5,13 @@ import { z } from 'zod';
 import type { User } from '@/app/lib/definitions';
 
 
-async function getUser(name: string): Promise<User | undefined> {
+async function getUser(userName: string): Promise<User | undefined> {
 
     // Simulate a user lookup for simplicity
-    if (name.toLowerCase() === process.env.ADMIN_USERNAME?.toLowerCase()) {
+    if (userName.toLowerCase() === process.env.ADMIN_USERNAME?.toLowerCase()) {
         return {
             id: "1",
-            name: process.env.ADMIN_USERNAME || "",
+            userName: process.env.ADMIN_USERNAME || "",
             password: process.env.ADMIN_PASSWORD || "",
         }
     } else {
@@ -30,12 +30,12 @@ export const { auth, signIn, signOut } = NextAuth({
 
                 // Validate credentials using Zod
                 const parsedCredentials = z
-                    .object({ name: z.string(), password: z.string().min(6) })
+                    .object({ userName: z.string(), password: z.string().min(6) })
                     .safeParse(credentials);
 
                 if (parsedCredentials.success) {
-                    const { name, password } = parsedCredentials.data;
-                    const user = await getUser(name);
+                    const { userName, password } = parsedCredentials.data;
+                    const user = await getUser(userName);
 
                     console.log("User:", user);
 
