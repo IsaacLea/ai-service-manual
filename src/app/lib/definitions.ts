@@ -13,3 +13,9 @@ export type PageText = {
     page: number;
     text: string;
 };
+
+export type User = {
+    id: string;
+    name: string;
+    password: string;
+};

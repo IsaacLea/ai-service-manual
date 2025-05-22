@@ -1,0 +1,53 @@
+import NextAuth from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
+import { authConfig } from './auth.config';
+import { z } from 'zod';
+import type { User } from '@/app/lib/definitions';
+
+
+async function getUser(name: string): Promise<User | undefined> {
+
+    // Simulate a user lookup for simplicity
+    if (name.toLowerCase() === process.env.ADMIN_USERNAME?.toLowerCase()) {
+        return {
+            id: "1",
+            name: process.env.ADMIN_USERNAME || "",
+            password: process.env.ADMIN_PASSWORD || "",
+        }
+    } else {
+        return undefined;
+    }
+
+}
+
+export const { auth, signIn, signOut } = NextAuth({
+    ...authConfig,
+    providers: [
+        Credentials({
+            async authorize(credentials) {
+
+                console.log('Authorizing user with credentials:', credentials);
+
+                // Validate credentials using Zod
+                const parsedCredentials = z
+                    .object({ name: z.string(), password: z.string().min(6) })
+                    .safeParse(credentials);
+
+                if (parsedCredentials.success) {
+                    const { name, password } = parsedCredentials.data;
+                    const user = await getUser(name);
+                    if (!user) return null;
+
+                    // Simulate password check (replace with actual password check)
+                    const passwordsMatch = password === user.password; // For testing only, remove in production
+
+                    // Return the user if the password matches
+                    if (passwordsMatch) return user;
+                }
+
+                console.log('Invalid credentials');
+                return null;
+            },
+        }),
+    ],
+});
