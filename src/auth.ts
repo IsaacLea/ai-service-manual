@@ -28,6 +28,7 @@ export const { auth, signIn, signOut } = NextAuth({
 
                 console.log('Authorizing user with credentials:', credentials);
 
+
                 // Validate credentials using Zod
                 const parsedCredentials = z
                     .object({ name: z.string(), password: z.string().min(6) })
@@ -36,10 +37,16 @@ export const { auth, signIn, signOut } = NextAuth({
                 if (parsedCredentials.success) {
                     const { name, password } = parsedCredentials.data;
                     const user = await getUser(name);
+
+                    console.log("User:", user);
+
                     if (!user) return null;
 
                     // Simulate password check (replace with actual password check)
                     const passwordsMatch = password === user.password; // For testing only, remove in production
+
+                    console.log('Password1:', password);
+                    console.log('Password2:', user.password);
 
                     // Return the user if the password matches
                     if (passwordsMatch) return user;
