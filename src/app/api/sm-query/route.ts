@@ -54,9 +54,11 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "indexName parameter is required." }, { status: 400 });
     }
 
-    if (query.toLowerCase() === "test") {
+    if (query.toLowerCase().trim() === "test") {
         return NextResponse.json({ message: "Dummy response!\nLine two" });
     }
+
+    //return NextResponse.json({ message: "This was not a test: [" + query + "]" });
 
     const pcResults = await queryPineconeIndex(indexName, query!)
 
