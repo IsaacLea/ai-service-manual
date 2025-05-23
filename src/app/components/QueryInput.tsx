@@ -49,9 +49,9 @@ const QueryInput: React.FC<QueryInputProps> = ({ indexName }) => {
     }
   };
 
-  const handleKeyDown = (e: { key: string; preventDefault: () => void; }) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
       handleButtonClick();
     }
   }
