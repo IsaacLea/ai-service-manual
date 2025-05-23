@@ -5,8 +5,10 @@ import { PCQueryResult, queryPineconeIndex } from "@/app/lib/pineconeUtils";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
-    apiKey: process.env.API_KEY_OPENAI
+    apiKey: process.env.API_KEY_OPENAI,
 });
+
+const AI_MODEL = "gpt-41-nano" // "gpt-4o-mini"
 
 async function queryAIModel(query: string, pcResults: PCQueryResult[]) {
 
@@ -31,7 +33,7 @@ async function queryAIModel(query: string, pcResults: PCQueryResult[]) {
     }
 
     const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: AI_MODEL,
         messages: [instructionsParam, contextParam, userParam],
     });
 
