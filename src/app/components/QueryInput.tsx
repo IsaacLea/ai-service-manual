@@ -12,6 +12,7 @@ const QueryInput: React.FC<QueryInputProps> = ({ indexName }) => {
 
   const [message, setMessage] = useState("");
   const [query, setQuery] = useState("");
+  const [submittedQuery, setSubmittedQuery] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -25,10 +26,12 @@ const QueryInput: React.FC<QueryInputProps> = ({ indexName }) => {
     setError("");
     setMessage("")
     setLoading(true);
+    setSubmittedQuery(query);
+    setQuery("");
 
     try {
 
-      const response = await fetch(`/api/sm-query?indexName=${indexName}&query=${encodeURIComponent(query)}`, {
+      const response = await fetch(`/api/sm-query?indexName=${indexName}&query=${encodeURIComponent(submittedQuery)}`, {
         method: "GET",
       });
 
@@ -64,7 +67,8 @@ const QueryInput: React.FC<QueryInputProps> = ({ indexName }) => {
         {loading ? "Loading..." : "Submit Query"}
       </button>
       <div className="w-9/10 sm:w-100">
-        {message && <MessageDisplay message={message} />}
+        {submittedQuery && <MessageDisplay message={submittedQuery} isUserMessage={true} />}
+        {message && <MessageDisplay message={message} isUserMessage={false} />}
       </div>
     </div>
   );
