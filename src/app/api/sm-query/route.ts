@@ -8,7 +8,7 @@ const openai = new OpenAI({
     apiKey: process.env.API_KEY_OPENAI,
 });
 
-const AI_MODEL = "gpt-41-nano" // "gpt-4o-mini"
+const AI_MODEL = "gpt-4o-mini" // gpt-41-nano (fails when sharing data is enabled)
 
 async function queryAIModel(query: string, pcResults: PCQueryResult[]) {
 
