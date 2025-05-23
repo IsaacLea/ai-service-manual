@@ -49,6 +49,13 @@ const QueryInput: React.FC<QueryInputProps> = ({ indexName }) => {
     }
   };
 
+  const handleKeyDown = (e: { key: string; preventDefault: () => void; }) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleButtonClick();
+    }
+  }
+
   return (
     <div className="flex flex-col items-center min-h-[80vh]">
       <input
@@ -57,6 +64,7 @@ const QueryInput: React.FC<QueryInputProps> = ({ indexName }) => {
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Enter your query"
         className="px-4 py-2 border rounded mb-4 w-9/10 sm:w-100"
+        onKeyDown={handleKeyDown}
       />
       {error && <p className="text-red-500 text-sm">{error}</p>}
       <button
