@@ -18,13 +18,13 @@ const QueryInput: React.FC<QueryInputProps> = ({ indexName }) => {
 
   const handleButtonClick = async () => {
 
-    const userQuery = query.trim();
-
-    if (!query.trim()) {
+    if (!query) {
       setError("Query is required.");
       return;
     }
 
+    // Assign the trimmed query to a new variable so it doesn't affect the original state when cleared
+    const userQuery = query.trim();
 
     setError("");
     setMessage("")
@@ -55,7 +55,10 @@ const QueryInput: React.FC<QueryInputProps> = ({ indexName }) => {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      handleButtonClick();
+
+      if (query.trim()) {
+        handleButtonClick();
+      }
     }
   }
 
@@ -66,7 +69,7 @@ const QueryInput: React.FC<QueryInputProps> = ({ indexName }) => {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Enter your query"
-        className="px-4 py-2 border rounded mb-4 w-9/10 sm:w-100"
+        className="px-4 py-2 border rounded mb-4 w-9/10 sm:w-100 text-black"
         onKeyDown={handleKeyDown}
       />
       {error && <p className="text-red-500 text-sm">{error}</p>}
