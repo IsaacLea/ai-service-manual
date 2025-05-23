@@ -13,8 +13,10 @@ export const authConfig = {
             if (isOnAdminPage) {
                 if (isLoggedIn) return true;
                 return false; // Redirect unauthenticated users to login page
-            } else if (isLoggedIn) {
-                return Response.redirect(new URL('/admin', nextUrl));
+            } else {
+                console.log(nextUrl);
+                return true
+                //return Response.redirect(new URL('/admin', nextUrl));
             }
             return true;
         },
