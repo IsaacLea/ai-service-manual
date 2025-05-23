@@ -18,20 +18,23 @@ const QueryInput: React.FC<QueryInputProps> = ({ indexName }) => {
 
   const handleButtonClick = async () => {
 
+    const userQuery = query.trim();
+
     if (!query.trim()) {
       setError("Query is required.");
       return;
     }
 
+
     setError("");
     setMessage("")
     setLoading(true);
-    setSubmittedQuery(query);
+    setSubmittedQuery(userQuery);
     setQuery("");
 
     try {
 
-      const response = await fetch(`/api/sm-query?indexName=${indexName}&query=${encodeURIComponent(submittedQuery)}`, {
+      const response = await fetch(`/api/sm-query?indexName=${indexName}&query=${encodeURIComponent(userQuery)}`, {
         method: "GET",
       });
 
