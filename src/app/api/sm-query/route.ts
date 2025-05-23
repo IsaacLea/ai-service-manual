@@ -14,7 +14,7 @@ async function queryAIModel(query: string, pcResults: PCQueryResult[]) {
 
     const instructionsParam: ChatCompletionMessageParam = {
         role: "developer",
-        content: "You are a helpful agent for a motorcycle technician. You will only answer if the relevant information is available in the provided context. If the information is not available, please respond with 'I was unable to find information on your question.  Try rephrasing.'"
+        content: "You are a helpful agent for a motorcycle technician. You will only answer if the relevant information is available in the provided context. If the information is not available, please respond with 'I was unable to find information on your question.  Try rephrasing or being more specific.'"
     }
 
     let context = "";
