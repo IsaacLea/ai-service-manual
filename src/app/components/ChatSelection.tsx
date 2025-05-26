@@ -47,7 +47,7 @@ const ChatSelection: React.FC = () => {
   return (
     <div className="flex flex-col items-center min-h-[80vh]">
       <select
-        className="border p-3 rounded w-full mb-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="border p-3 rounded w-full min-w-[300px] mb-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
         value={selectedOption}
         onChange={handleSelectionChange}
       >

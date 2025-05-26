@@ -1,6 +1,6 @@
 'use server';
 
-import { signIn } from '@/auth';
+import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
 
 // This function is used to authenticate the user using the credentials provider.
@@ -21,4 +21,9 @@ export async function authenticate(
         }
         throw error;
     }
+}
+
+export async function logOut() {
+    await signOut({ redirectTo: "/" });
+    return { message: 'Logged out successfully.' };
 }
