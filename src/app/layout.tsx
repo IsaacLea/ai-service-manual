@@ -37,7 +37,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 to-blue-200 overflow-y-hidden">
+        <div className="flex flex-col h-[100dvh] bg-gradient-to-br from-blue-50 to-blue-200">
           <header className="w-full flex justify-between items-center px-8 py-2 shadow-md bg-gradient-to-br from-blue-50 to-blue-200">
             <Link
               href="/"
