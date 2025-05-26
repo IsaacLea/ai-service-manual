@@ -7,6 +7,7 @@ const pinecone = new Pinecone({
 
 export async function getIndexNames(): Promise<string[]> {
 
+    console.log("Fetching index names from Pinecone...");
     const indexList: IndexList = await pinecone.listIndexes();
 
     if (Array.isArray(indexList.indexes)) {
