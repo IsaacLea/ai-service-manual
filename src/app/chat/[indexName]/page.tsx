@@ -14,7 +14,7 @@ export default async function ChatContent({
   const indexDisplayRecord = getIndexDisplayRecord(indexName);
 
   return (
-    <div className="flex flex-1 h-full flex-col items-center justify-center">
+    <div className="flex flex-1 h-full flex-col items-center justify-center w-full">
 
       <div className=" flex-1 h-full w-full max-w-xl bg-white rounded-xl shadow-lg p-8 items-center flex flex-col space-y-4">
         <h1 className="text-xl font-extrabold text-black drop-shadow-lg">

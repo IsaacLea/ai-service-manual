@@ -63,13 +63,13 @@ const QueryInput: React.FC<QueryInputProps> = ({ indexName }) => {
   }
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center w-full">
       <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Enter your query"
-        className="px-4 py-2 border rounded mb-4 w-9/10 sm:w-100 text-black"
+        className="px-4 py-2 border rounded mb-4 w-full text-black"
         onKeyDown={handleKeyDown}
       />
       {error && <p className="text-red-500 text-sm">{error}</p>}
