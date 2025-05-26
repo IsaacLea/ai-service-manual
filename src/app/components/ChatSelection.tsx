@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation'
+import { getIndexDisplayRecord } from "../utils";
 
 const ChatSelection: React.FC = () => {
 
@@ -32,6 +33,17 @@ const ChatSelection: React.FC = () => {
     }
   }
 
+  function renderIndexOptions() {
+    return indexes.map((idx) => {
+      const record = getIndexDisplayRecord(idx);
+      return (
+        <option key={idx} value={idx}>
+          {record ? record.indexDisplayName : idx}
+        </option>
+      );
+    });
+  }
+
   return (
     <div className="flex flex-col items-center min-h-[80vh]">
       <select
@@ -40,9 +52,7 @@ const ChatSelection: React.FC = () => {
         onChange={handleSelectionChange}
       >
         <option value="" disabled hidden>Select an option</option>
-        {indexes.map((idx) => (
-          <option key={idx} value={idx}>{idx}</option>
-        ))}
+        {renderIndexOptions()}
       </select>
     </div>
   )
