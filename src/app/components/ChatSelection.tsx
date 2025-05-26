@@ -4,7 +4,11 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation'
 import { getIndexDisplayRecord } from "../utils";
 
-const ChatSelection: React.FC = () => {
+interface ChatSelectionProps {
+  className?: string;
+}
+
+const ChatSelection: React.FC<ChatSelectionProps> = ({ className }) => {
 
   const router = useRouter()
   const [indexes, setIndexes] = useState<string[]>([]);
@@ -45,7 +49,7 @@ const ChatSelection: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center min-h-[80vh]">
+    <div className={`flex flex-col items-center min-h-full${className ? ` ${className}` : ''}`}>
       <select
         className="border p-3 rounded w-full min-w-[300px] mb-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
         value={selectedOption}

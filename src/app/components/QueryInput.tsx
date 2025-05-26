@@ -63,7 +63,7 @@ const QueryInput: React.FC<QueryInputProps> = ({ indexName }) => {
   }
 
   return (
-    <div className="flex flex-col items-center min-h-[80vh]">
+    <div className="flex flex-col items-center">
       <input
         type="text"
         value={query}

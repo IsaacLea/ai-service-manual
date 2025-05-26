@@ -37,8 +37,8 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-200">
-          <header className="w-full flex justify-between items-center px-8 py-2 bg-white shadow-md bg-gradient-to-br from-blue-50 to-blue-200">
+        <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 to-blue-200">
+          <header className="w-full flex justify-between items-center px-8 py-2 shadow-md bg-gradient-to-br from-blue-50 to-blue-200">
             <Link
               href="/"
               className="flex items-center text-lg font-bold text-blue-800 hover:underline"
@@ -60,7 +60,7 @@ export default async function RootLayout({
               )}
             </div>
           </header>
-          <main>
+          <main className="flex flex-col flex-1">
             {children}
           </main>
         </div>
