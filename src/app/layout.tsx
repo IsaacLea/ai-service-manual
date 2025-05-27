@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Link from "next/link";
 import HomeIcon from "./components/HomeIcon";
-
+import { Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 import LogOutForm from "./components/LogOutForm";
 import { auth } from '../auth';
@@ -41,18 +41,17 @@ export default async function RootLayout({
           <header className="w-full flex justify-between items-center px-8 py-2">
             <Link
               href="/"
-              className="flex items-center text-lg font-bold text-blue-800 hover:underline"
+              className="flex items-center text-lg font-bold text-blue-800 hover:underline group"
             >
-              <HomeIcon />
-              Home
+              <HomeIcon className="w-6 h-6 mr-2 transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-110" />
             </Link>
             <div className="flex items-center gap-6">
               {!isLoggedIn && (
                 <Link
                   href="/admin"
-                  className="text-blue-600 hover:underline font-medium"
+                  className="text-blue-600 hover:underline font-medium group"
                 >
-                  Login
+                  <Cog6ToothIcon className="h-6 w-6 transition-transform duration-200 group-hover:rotate-90 group-hover:scale-110" />
                 </Link>
               )}
               {isLoggedIn && (
