@@ -4,11 +4,8 @@ import React, { useState } from "react";
 import MessageDisplay from "./MessageDisplay";
 import { QueryResult } from "../types";
 
-interface QueryInputProps {
-  indexName: string;
-}
 
-const QueryInput: React.FC<QueryInputProps> = ({ indexName }) => {
+const QueryInput: React.FC<{ indexName: string }> = ({ indexName }) => {
 
   const [message, setMessage] = useState("");
   const [query, setQuery] = useState("");
