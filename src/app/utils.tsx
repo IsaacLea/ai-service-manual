@@ -13,7 +13,7 @@ const indexes: IndexDisplayRecord[] = [
     },
     {
         indexName: "2022-tenere-700",
-        indexDisplayName: "Tenere 700 Service Manual (20222)",
+        indexDisplayName: "Tenere 700 Service Manual (2022)",
     },
 ];
 
