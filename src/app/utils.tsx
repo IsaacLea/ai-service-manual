@@ -11,6 +11,10 @@ const indexes: IndexDisplayRecord[] = [
         indexDisplayName: "Tiger 900 Owner's Handbook",
         imgSrc: "/triumph.png",
     },
+    {
+        indexName: "2022-tenere-700",
+        indexDisplayName: "Tenere 700 Service Manual (20222)",
+    },
 ];
 
 export function getIndexDisplayRecord(indexName: string): IndexDisplayRecord | undefined {
