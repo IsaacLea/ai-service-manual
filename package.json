@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "@neondatabase/serverless": "^1.0.1",
     "@pinecone-database/pinecone": "^5.1.2",
     "@ungap/with-resolvers": "^0.1.0",
     "clsx": "^2.1.1",

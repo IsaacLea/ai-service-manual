@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/src/resources/chat/completions.js";
 import { PCQueryResult, queryPineconeIndex } from "@/app/lib/pineconeUtils";
+import { logError, logInfo } from "@/app/lib/loggingService";
+
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -41,31 +43,39 @@ async function queryAIModel(query: string, pcResults: PCQueryResult[]) {
 
 }
 
-
 export async function GET(request: Request) {
 
-    const { searchParams } = new URL(request.url);
-    const query = searchParams.get('query');
-    const indexName = searchParams.get('indexName');
+    try {
+        const { searchParams } = new URL(request.url);
+        const query = searchParams.get('query');
+        const indexName = searchParams.get('indexName');
 
-    if (!query) {
-        return NextResponse.json({ error: "Query parameter is required." }, { status: 400 });
+        if (!query) {
+            return NextResponse.json({ error: "Query parameter is required." }, { status: 400 });
+        }
+
+        logInfo("Received query: " + query);
+
+
+        if (!indexName) {
+            return NextResponse.json({ error: "indexName parameter is required." }, { status: 400 });
+        }
+
+        if (query.toLowerCase().trim() === "test") {
+            return NextResponse.json({ message: "Dummy response!\nLine two" });
+        }
+
+
+        //return NextResponse.json({ message: "This was not a test: [" + query + "]" });
+
+        const pcResults = await queryPineconeIndex(indexName, query!)
+
+        const aiResponse = await queryAIModel(query!, pcResults);
+
+        return NextResponse.json({ message: aiResponse });
+    } catch (error) {
+        logError("Error processing request: " + error);
+        throw error;
     }
-
-    if (!indexName) {
-        return NextResponse.json({ error: "indexName parameter is required." }, { status: 400 });
-    }
-
-    if (query.toLowerCase().trim() === "test") {
-        return NextResponse.json({ message: "Dummy response!\nLine two" });
-    }
-
-    //return NextResponse.json({ message: "This was not a test: [" + query + "]" });
-
-    const pcResults = await queryPineconeIndex(indexName, query!)
-
-    const aiResponse = await queryAIModel(query!, pcResults);
-
-    return NextResponse.json({ message: aiResponse });
 
 }
