@@ -66,9 +66,9 @@ export async function GET(request: Request) {
             return NextResponse.json({ message: "Dummy response!\nLine two" });
         }
 
-        const pcResults = await queryPineconeIndex(indexName, query!)
+        const pcResults = await queryPineconeIndex(indexName, query)
 
-        const aiResponse = await queryAIModel(query!, pcResults);
+        const aiResponse = await queryAIModel(query, pcResults);
 
         return NextResponse.json({ message: aiResponse });
     } catch (error) {
