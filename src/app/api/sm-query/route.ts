@@ -45,28 +45,26 @@ async function queryAIModel(query: string, pcResults: PCQueryResult[]) {
 
 export async function GET(request: Request) {
 
+    let indexName: string | null = null;
+
     try {
         const { searchParams } = new URL(request.url);
         const query = searchParams.get('query');
-        const indexName = searchParams.get('indexName');
+        indexName = searchParams.get('indexName');
 
         if (!query) {
             return NextResponse.json({ error: "Query parameter is required." }, { status: 400 });
         }
 
-        logInfo("Received query: " + query);
-
-
         if (!indexName) {
             return NextResponse.json({ error: "indexName parameter is required." }, { status: 400 });
         }
 
+        logInfo("Received query for index: " + indexName + " - " + query);
+
         if (query.toLowerCase().trim() === "test") {
             return NextResponse.json({ message: "Dummy response!\nLine two" });
         }
-
-
-        //return NextResponse.json({ message: "This was not a test: [" + query + "]" });
 
         const pcResults = await queryPineconeIndex(indexName, query!)
 
@@ -74,7 +72,12 @@ export async function GET(request: Request) {
 
         return NextResponse.json({ message: aiResponse });
     } catch (error) {
-        logError("Error processing request: " + error);
+        if (error instanceof Error) {
+            logError("Error processing for index: " + indexName + " - " + error.message);
+        } else {
+            logError("Error processing for index: " + indexName + JSON.stringify(error));
+        }
+
         throw error;
     }
 

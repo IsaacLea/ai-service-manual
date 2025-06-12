@@ -21,6 +21,6 @@ export async function logError(message: string) {
 }
 
 async function log(severity: LOG_SEVERITY, message: string) {
-    await sql`INSERT INTO app_logs(create_time, severity, log_text) VALUES (NOW(), ${severity}, ${message})`;
+    await sql`INSERT INTO app_logs(create_time, severity, message) VALUES (NOW(), ${severity}, ${message})`;
 }
 
