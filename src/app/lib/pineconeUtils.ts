@@ -20,7 +20,7 @@ let cachedIndexNames: string[] = new Array<string>();
 export async function getIndexNames(): Promise<string[]> {
 
     // Use cache if available and not expired
-    if (cachedIndexNames) {
+    if (cachedIndexNames && cachedIndexNames.length > 0) {
         return cachedIndexNames;
     }
 
