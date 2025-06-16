@@ -47,7 +47,7 @@ export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
                         aria-haspopup="true"
                         aria-expanded={submenuOpen}
                         onClick={() => setSubmenuOpen((v) => !v)}
-                        className="text-blue-600 hover:underline font-medium group focus:outline-none"
+                        className="text-blue-600 hover:underline font-medium group focus:outline-none cursor-pointer"
                     >
                         <Cog6ToothIcon className="h-6 w-6 transition-transform duration-200 group-hover:rotate-90 group-hover:scale-110" />
                     </button>
