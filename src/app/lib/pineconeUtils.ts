@@ -6,14 +6,31 @@ const pinecone = new Pinecone({
     apiKey: process.env.API_KEY_PINECONE!,
 });
 
+export type PCQueryResult = {
+    id: string;
+    pageText: string;
+    pageNumber: number;
+};
+
+// Simple in-memory cache for pinecone records.  This is used to reduce the number of API calls made to Pinecone
+const recordByPageCache = new Map<string, PCQueryResult | null>();
+const indexInstanceCache = new Map<string, Index>();
+let cachedIndexNames: string[] = new Array<string>();
+
 export async function getIndexNames(): Promise<string[]> {
+
+    // Use cache if available and not expired
+    if (cachedIndexNames) {
+        return cachedIndexNames;
+    }
 
     logInfo("Fetching index names from Pinecone...");
 
     const indexList: IndexList = await pinecone.listIndexes();
 
     if (Array.isArray(indexList.indexes)) {
-        return indexList.indexes.map(index => index.name);
+        cachedIndexNames = indexList.indexes.map(index => index.name);
+        return cachedIndexNames;
     } else {
         console.error("Invalid index list format:", indexList);
         return [];
@@ -48,13 +65,28 @@ export async function createIndex(indexName: string) {
 
 }
 
-export type PCQueryResult = {
-    id: string;
-    pageText: string;
-    pageNumber: number;
-};
+function getIndex(indexName: string): Index {
 
-export async function getRecordByPage(dense_index: Index, pageNumber: number): Promise<PCQueryResult | null> {
+    if (indexInstanceCache.has(indexName)) {
+        return indexInstanceCache.get(indexName)!;
+    }
+
+    const idx = pinecone.Index(indexName);
+    indexInstanceCache.set(indexName, idx);
+
+    return idx;
+}
+
+export async function getRecordByPage(indexName: string, pageNumber: number): Promise<PCQueryResult | null> {
+
+    const cacheKey = indexName + pageNumber;
+    const cached = recordByPageCache.get(cacheKey);
+
+    if (cached !== undefined) {
+        return cached;
+    }
+
+    const dense_index = getIndex(indexName);
 
     const response = await dense_index.searchRecords({
         query: {
@@ -65,18 +97,26 @@ export async function getRecordByPage(dense_index: Index, pageNumber: number): P
     });
 
     const hit = response.result.hits[0];
-    if (!hit) return null;
+    if (!hit) {
+        recordByPageCache.set(cacheKey, null);
+        return null;
+    }
+
     const fields = hit.fields as { chunk_text: string; page: number };
-    return {
+    const result: PCQueryResult = {
         id: hit._id,
         pageText: fields.chunk_text,
         pageNumber: fields.page
     };
+
+    recordByPageCache.set(cacheKey, result);
+
+    return result;
 }
 
 export async function queryPineconeIndex(indexName: string, query: string) {
 
-    const dense_index = pinecone.Index(indexName);
+    const dense_index = getIndex(indexName);
 
     // Perform a query on the specified index with the given query string
     const response = await dense_index.searchRecords({
@@ -105,7 +145,7 @@ export async function queryPineconeIndex(indexName: string, query: string) {
     for (const result of results) {
 
         if (!pageNumbers.includes(result.pageNumber + 1)) {
-            const nextRecord = await getRecordByPage(dense_index, result.pageNumber + 1);
+            const nextRecord = await getRecordByPage(indexName, result.pageNumber + 1);
             if (nextRecord) {
                 extraRecords.push(nextRecord);
                 pageNumbers.push(nextRecord.pageNumber);
@@ -113,7 +153,7 @@ export async function queryPineconeIndex(indexName: string, query: string) {
         }
 
         if (!pageNumbers.includes(result.pageNumber + 2)) {
-            const nextRecord = await getRecordByPage(dense_index, result.pageNumber + 2);
+            const nextRecord = await getRecordByPage(indexName, result.pageNumber + 2);
             if (nextRecord) {
                 extraRecords.push(nextRecord);
             }
@@ -129,7 +169,7 @@ export async function queryPineconeIndex(indexName: string, query: string) {
 
 export async function describePineconeIndex(indexName: string) {
 
-    const dense_index = pinecone.Index(indexName)
+    const dense_index = getIndex(indexName)
 
     const stats = await dense_index.describeIndexStats();
 
@@ -138,7 +178,7 @@ export async function describePineconeIndex(indexName: string) {
 
 export async function upsertRecords(indexName: string, records: IntegratedRecord<RecordMetadata>[]) {
 
-    const dense_index = pinecone.Index(indexName);
+    const dense_index = getIndex(indexName);
 
     const BATCH_SIZE = 96;
 
@@ -146,4 +186,11 @@ export async function upsertRecords(indexName: string, records: IntegratedRecord
         const batch = records.slice(i, i + BATCH_SIZE);
         await dense_index.upsertRecords(batch);
     }
+}
+
+export async function invalidateCache() {
+    recordByPageCache.clear();
+    indexInstanceCache.clear();
+    cachedIndexNames = [];
+    logInfo("Pinecone cache invalidated.");
 }

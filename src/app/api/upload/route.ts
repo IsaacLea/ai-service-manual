@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { UploadContent } from "@/app/lib/definitions";
 import { IntegratedRecord, RecordMetadata } from '@pinecone-database/pinecone';
-import { checkIndexExistence, createIndex, upsertRecords } from "@/app/lib/pineconeUtils";
+import { checkIndexExistence, createIndex, invalidateCache, upsertRecords } from "@/app/lib/pineconeUtils";
 
 
 export async function POST(request: Request) {
@@ -32,7 +32,10 @@ export async function POST(request: Request) {
     // Upsert records into the pinecone index
     await upsertRecords(content.indexName, records)
 
-    return NextResponse.json({ message: "File received but process not implemented", fileName: content.filename });
+    // Invalidate the cache to ensure the new index is recognized
+    invalidateCache();
+
+    return NextResponse.json({ message: "File loaded successfully", fileName: content.filename });
 
   } catch (error) {
     console.error("Error handling file upload:", error);
