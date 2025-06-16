@@ -1,4 +1,5 @@
-import { IndexList, IntegratedRecord, Pinecone, RecordMetadata } from '@pinecone-database/pinecone';
+import { Index, IndexList, IntegratedRecord, Pinecone, RecordMetadata } from '@pinecone-database/pinecone';
+import { logInfo } from './loggingService';
 
 // Initialize Pinecone client
 const pinecone = new Pinecone({
@@ -7,7 +8,8 @@ const pinecone = new Pinecone({
 
 export async function getIndexNames(): Promise<string[]> {
 
-    console.log("Fetching index names from Pinecone...");
+    logInfo("Fetching index names from Pinecone...");
+
     const indexList: IndexList = await pinecone.listIndexes();
 
     if (Array.isArray(indexList.indexes)) {
@@ -52,14 +54,34 @@ export type PCQueryResult = {
     pageNumber: number;
 };
 
+export async function getRecordByPage(dense_index: Index, pageNumber: number): Promise<PCQueryResult | null> {
+
+    const response = await dense_index.searchRecords({
+        query: {
+            topK: 1,
+            filter: { page: pageNumber },
+            inputs: { text: "" }, // Empty text, just filter by page
+        },
+    });
+
+    const hit = response.result.hits[0];
+    if (!hit) return null;
+    const fields = hit.fields as { chunk_text: string; page: number };
+    return {
+        id: hit._id,
+        pageText: fields.chunk_text,
+        pageNumber: fields.page
+    };
+}
+
 export async function queryPineconeIndex(indexName: string, query: string) {
 
-    const dense_index = pinecone.Index(indexName)
+    const dense_index = pinecone.Index(indexName);
 
     // Perform a query on the specified index with the given query string
     const response = await dense_index.searchRecords({
         query: {
-            topK: 10,
+            topK: 8,
             inputs: { text: query },
         },
         // fields: ['chunk_text', 'category'],
@@ -75,7 +97,34 @@ export async function queryPineconeIndex(indexName: string, query: string) {
         };
     });
 
-    return results;
+    // Get the next two pages if they do not exist in the results
+    // This is to ensure we have enough context in case instructions spill over multiple pages
+    const pageNumbers = results.map(r => r.pageNumber);
+    const extraRecords: PCQueryResult[] = [];
+
+    for (const result of results) {
+
+        if (!pageNumbers.includes(result.pageNumber + 1)) {
+            const nextRecord = await getRecordByPage(dense_index, result.pageNumber + 1);
+            if (nextRecord) {
+                extraRecords.push(nextRecord);
+                pageNumbers.push(nextRecord.pageNumber);
+            }
+        }
+
+        if (!pageNumbers.includes(result.pageNumber + 2)) {
+            const nextRecord = await getRecordByPage(dense_index, result.pageNumber + 2);
+            if (nextRecord) {
+                extraRecords.push(nextRecord);
+            }
+        }
+    }
+
+    // Sort the combined results by pageNumber before returning
+    const allResults = [...results, ...extraRecords];
+    allResults.sort((a, b) => a.pageNumber - b.pageNumber);
+
+    return allResults;
 }
 
 export async function describePineconeIndex(indexName: string) {

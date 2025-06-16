@@ -16,7 +16,12 @@ async function queryAIModel(query: string, pcResults: PCQueryResult[]) {
 
     const instructionsParam: ChatCompletionMessageParam = {
         role: "developer",
-        content: "You are a helpful agent for a motorcycle technician. You will only answer if the relevant information is available in the provided context. If the information is not available, please respond with 'I was unable to find information on your question.  Try rephrasing or being more specific.'"
+        content: `You are a helpful agent for a motorcycle technician. 
+            If there is more than one possible answer to the input query, provide all the relevant answers.  For example if the user asks 'what is the wheel torque' it could mean the front or rear wheel axel.  Provide both answers.
+            You will only answer if the relevant information is available in the provided context. 
+            If the information is not available, respond with 'I was unable to find information on your question.  Try rephrasing or being more specific.'
+            Always provide the page number where the information was found, and if possible, the section title.'
+            `
     }
 
     let context = "";
@@ -69,8 +74,10 @@ export async function GET(request: Request) {
             return NextResponse.json({ message: "This is only a test\nNo AI services have been invoked" });
         }
 
-        const pcResults = await queryPineconeIndex(indexName, query)
+        // Perform the vector search on the preloaded content in Pinecone
+        const pcResults = await queryPineconeIndex(indexName, query);
 
+        // Using the results from Pinecone, query the AI model
         const aiResponse = await queryAIModel(query, pcResults);
 
         logMessage(indexName, query, aiResponse ? aiResponse : "");
