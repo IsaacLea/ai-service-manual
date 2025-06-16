@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/src/resources/chat/completions.js";
 import { PCQueryResult, queryPineconeIndex } from "@/app/lib/pineconeUtils";
-import { logError, logInfo } from "@/app/lib/loggingService";
+import { logError, logInfo, logMessage } from "@/app/lib/loggingService";
 
 
 // Initialize OpenAI client
@@ -52,6 +52,8 @@ export async function GET(request: Request) {
         const query = searchParams.get('query');
         indexName = searchParams.get('indexName');
 
+        const ip = (request.headers.get('x-forwarded-for') ?? '127.0.0.1').split(',')[0];
+
         if (!query) {
             return NextResponse.json({ error: "Query parameter is required." }, { status: 400 });
         }
@@ -60,15 +62,18 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: "indexName parameter is required." }, { status: 400 });
         }
 
-        logInfo("Received query for index: " + indexName + " - " + query);
+        logInfo(`Request from IP ${ip} - ${query}`);
 
+        // Test code - useful when wanting to avoid external API calls
         if (query.toLowerCase().trim() === "test") {
-            return NextResponse.json({ message: "Dummy response!\nLine two" });
+            return NextResponse.json({ message: "This is only a test\nNo AI services have been invoked" });
         }
 
         const pcResults = await queryPineconeIndex(indexName, query)
 
         const aiResponse = await queryAIModel(query, pcResults);
+
+        logMessage(indexName, query, aiResponse ? aiResponse : "");
 
         return NextResponse.json({ message: aiResponse });
     } catch (error) {

@@ -24,3 +24,8 @@ async function log(severity: LOG_SEVERITY, message: string) {
     await sql`INSERT INTO app_logs(create_time, severity, message) VALUES (NOW(), ${severity}, ${message})`;
 }
 
+export async function logMessage(index: string, queryText: string, responseText: string) {
+    await sql`INSERT INTO messages(create_time, index, query_text, response_text) VALUES (NOW(), ${index}, ${queryText}, ${responseText})`;
+}
+
+
