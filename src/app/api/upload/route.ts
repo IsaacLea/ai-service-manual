@@ -1,27 +1,44 @@
 import { NextResponse } from "next/server";
-import { UploadContent } from "@/app/lib/definitions";
 import { IntegratedRecord, RecordMetadata } from '@pinecone-database/pinecone';
-import { checkIndexExistence, createIndex, invalidateCache, upsertRecords } from "@/app/lib/pineconeUtils";
-
+import { createIndex, getIndexByName, invalidateCache, upsertRecords } from "@/app/lib/pineconeUtils";
+import { put } from "@vercel/blob";
+import { saveIndex } from "@/app/lib/databaseService";
 
 export async function POST(request: Request) {
   try {
 
-    const content: UploadContent = await request.json();
+    const formData = await request.formData();
+    const file = formData.get("file") as File;
+    const arrayBuffer = await file.arrayBuffer();
 
-    const exists = await checkIndexExistence(content.indexName);
+    const fileName = formData.get("fileName") as string;
+    const indexName = formData.get("indexName") as string;
+    const pages = formData.get("pages") as Blob;
 
-    if (exists) {
-      throw new Error(`Index ${content.indexName} already exists.`);
-    } else {
-      await createIndex(content.indexName);
+    // Extract the array of PageText objects from the pages Blob
+    let pageTexts: any[] = [];
+    if (pages) {
+      const pagesText = await pages.text();
+      pageTexts = JSON.parse(pagesText);
+    }
+
+    const { url } = await put(fileName, arrayBuffer, { access: 'public', allowOverwrite: true });
+
+    await saveIndex(indexName, indexName, fileName, url)
+
+    console.log(url);
+
+    const index = getIndexByName(indexName);
+
+    if (!index) {
+      await createIndex(indexName);
     }
 
     // Map the content pages to records ready for upsert
     const records: IntegratedRecord<RecordMetadata>[] = []
 
-    for (let i = 0; i < content.pages.length; i++) {
-      const page = content.pages[i];
+    for (let i = 0; i < pageTexts.length; i++) {
+      const page = pageTexts[i];
       records.push({
         id: `rec${i}`,
         chunk_text: page.text,
@@ -29,16 +46,18 @@ export async function POST(request: Request) {
       });
     }
 
-    // Upsert records into the pinecone index
-    await upsertRecords(content.indexName, records)
+    // // Upsert records into the pinecone index
+    await upsertRecords(indexName, records)
 
-    // Invalidate the cache to ensure the new index is recognized
+    // // Invalidate the cache to ensure the new index is recognized
     invalidateCache();
 
-    return NextResponse.json({ message: "File loaded successfully", fileName: content.filename });
+    return NextResponse.json({ message: "File loaded successfully", fileName: fileName });
 
   } catch (error) {
     console.error("Error handling file upload:", error);
     return NextResponse.json({ error: "Failed to upload file." }, { status: 500 });
   }
 }
+
+

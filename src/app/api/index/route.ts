@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { getIndexNames } from "@/app/lib/pineconeUtils";
+import { getIndexes } from "@/app/lib/databaseService";
 
 
 export async function GET() {
 
-    const indexes = await getIndexNames();
+    const indexes = await getIndexes();
+    // const indexes = await getIndexNames();
 
     return NextResponse.json({ indexes });
 }

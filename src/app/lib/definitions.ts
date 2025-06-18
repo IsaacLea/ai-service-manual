@@ -3,11 +3,12 @@ export type ContentMetadata = {
     pageCount: number;
 };
 
-export type UploadContent = {
-    filename: string;
-    indexName: string;
-    pages: PageText[];
-};
+// export type UploadContent = {
+//     filename: string;
+//     indexName: string;
+//     pages: PageText[];
+//     file: File; // binary contents of the file
+// };
 
 export type PageText = {
     page: number;

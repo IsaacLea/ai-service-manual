@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation'
-import { getIndexDisplayRecord } from "../utils";
+import { VectorIndexRow } from "../lib/databaseService";
 
 interface ChatSelectionProps {
   className?: string;
@@ -11,7 +11,7 @@ interface ChatSelectionProps {
 const ChatSelection: React.FC<ChatSelectionProps> = ({ className }) => {
 
   const router = useRouter()
-  const [indexes, setIndexes] = useState<string[]>([]);
+  const [indexes, setIndexes] = useState<VectorIndexRow[]>([]);
   const [selectedOption, setSelectedOption] = useState("");
 
   useEffect(() => {
@@ -19,6 +19,7 @@ const ChatSelection: React.FC<ChatSelectionProps> = ({ className }) => {
       try {
         const response = await fetch("/api/index");
         const data = await response.json();
+        console.log(data);
         setIndexes(data.indexes || []);
       } catch (error) {
         console.error("Error fetching indexes:", error);
@@ -38,11 +39,10 @@ const ChatSelection: React.FC<ChatSelectionProps> = ({ className }) => {
   }
 
   function renderIndexOptions() {
-    return indexes.map((idx) => {
-      const record = getIndexDisplayRecord(idx);
+    return indexes.map((indexRow) => {
       return (
-        <option key={idx} value={idx}>
-          {record ? record.indexDisplayName : idx}
+        <option key={indexRow.id} value={indexRow.indexName}>
+          {indexRow.indexDisplayName}
         </option>
       );
     });

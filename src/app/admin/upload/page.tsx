@@ -8,7 +8,7 @@
  * Ideally, the file processing should be server side, but the react-pdf library is not compatible with server components. 
  * Alternatively the file processing could be turned into a separate micro service using a different language (java/python), but that would be overkill for this project.
  */
-import { PageText, UploadContent } from "@/app/lib/definitions";
+import { PageText } from "@/app/lib/definitions";
 import '@ungap/with-resolvers'; // Fixes runtime issue with pdfjs library not being able to resolve the Promise.withResolvers
 import { useState } from "react";
 import { pdfjs } from 'react-pdf';
@@ -40,7 +40,8 @@ export default function Upload() {
 
       try {
 
-        const buffer = Buffer.from(await file.arrayBuffer());
+        const fileArrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(fileArrayBuffer);
 
         const pdfPages = await parsePDF(buffer);
 
@@ -50,15 +51,24 @@ export default function Upload() {
           return;
         }
 
-        const uploadContent: UploadContent = {
-          filename: file.name,
-          indexName: indexName,
-          pages: pdfPages,
-        };
+        // const uploadContent: UploadContent = {
+        //   filename: file.name,
+        //   indexName: indexName,
+        //   pages: pdfPages,
+        //   file: file
+        // };
+
+        const pagesBlob = new Blob([JSON.stringify(pdfPages)], { type: 'application/json' });
+
+        const formData = new FormData();
+        formData.append("fileName", file.name);
+        formData.append("file", file);
+        formData.append("indexName", indexName);
+        formData.append("pages", pagesBlob);
 
         const response = await fetch("/api/upload", {
           method: "POST",
-          body: JSON.stringify(uploadContent),
+          body: formData
         });
 
         if (response.ok) {

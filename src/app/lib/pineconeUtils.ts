@@ -65,7 +65,7 @@ export async function createIndex(indexName: string) {
 
 }
 
-function getIndex(indexName: string): Index {
+export async function getIndexByName(indexName: string): Promise<Index> {
 
     if (indexInstanceCache.has(indexName)) {
         return indexInstanceCache.get(indexName)!;
@@ -86,7 +86,7 @@ export async function getRecordByPage(indexName: string, pageNumber: number): Pr
         return cached;
     }
 
-    const dense_index = getIndex(indexName);
+    const dense_index = await getIndexByName(indexName);
 
     const response = await dense_index.searchRecords({
         query: {
@@ -116,7 +116,7 @@ export async function getRecordByPage(indexName: string, pageNumber: number): Pr
 
 export async function queryPineconeIndex(indexName: string, query: string) {
 
-    const dense_index = getIndex(indexName);
+    const dense_index = await getIndexByName(indexName);
 
     // Perform a query on the specified index with the given query string
     const response = await dense_index.searchRecords({
@@ -169,7 +169,7 @@ export async function queryPineconeIndex(indexName: string, query: string) {
 
 export async function describePineconeIndex(indexName: string) {
 
-    const dense_index = getIndex(indexName)
+    const dense_index = await getIndexByName(indexName)
 
     const stats = await dense_index.describeIndexStats();
 
@@ -178,7 +178,7 @@ export async function describePineconeIndex(indexName: string) {
 
 export async function upsertRecords(indexName: string, records: IntegratedRecord<RecordMetadata>[]) {
 
-    const dense_index = getIndex(indexName);
+    const dense_index = await getIndexByName(indexName);
 
     const BATCH_SIZE = 96;
 
