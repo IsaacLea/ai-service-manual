@@ -3,6 +3,7 @@ import { IntegratedRecord, RecordMetadata } from '@pinecone-database/pinecone';
 import { createIndex, getIndexByName, invalidateCache, upsertRecords } from "@/app/lib/pineconeUtils";
 import { put } from "@vercel/blob";
 import { saveIndex } from "@/app/lib/databaseService";
+import { logError } from "@/app/lib/loggingService";
 
 export async function POST(request: Request) {
   try {
@@ -55,7 +56,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "File loaded successfully", fileName: fileName });
 
   } catch (error) {
-    console.error("Error handling file upload:", error);
+    logError(error);
     return NextResponse.json({ error: "Failed to upload file." }, { status: 500 });
   }
 }

@@ -83,13 +83,9 @@ export async function GET(request: Request) {
         logMessage(indexName, query, aiResponse ? aiResponse : "");
 
         return NextResponse.json({ message: aiResponse });
-    } catch (error) {
-        if (error instanceof Error) {
-            logError("Error processing for index: " + indexName + " - " + error.message);
-        } else {
-            logError("Error processing for index: " + indexName + JSON.stringify(error));
-        }
 
+    } catch (error) {
+        logError(error);
         throw error;
     }
 

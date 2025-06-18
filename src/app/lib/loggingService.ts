@@ -15,8 +15,17 @@ export async function logInfo(message: string) {
     await log(LOG_SEVERITY.INFO, message);
 }
 
-export async function logError(message: string) {
-    console.error(message);
+export async function logError(error: Error | unknown) {
+
+    console.error(error);
+    let message;
+
+    if (error instanceof Error) {
+        message = error.message
+    } else {
+        message = JSON.stringify(error);
+    }
+
     await log(LOG_SEVERITY.ERROR, message);
 }
 
