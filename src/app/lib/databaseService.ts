@@ -18,8 +18,6 @@ export async function getIndexByName(indexName: string) {
 
     const indexRecord = await sql`SELECT * FROM vector_indexes WHERE index_name=${indexName}`;
 
-    console.log(indexRecord);
-
     if (indexRecord && indexRecord.length > 0) {
         const index: any = indexRecord.at(0);
 
