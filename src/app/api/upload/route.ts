@@ -27,8 +27,6 @@ export async function POST(request: Request) {
 
     await saveIndex(indexName, indexName, fileName, url)
 
-    console.log(url);
-
     const index = getIndexByName(indexName);
 
     if (!index) {

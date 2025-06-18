@@ -8,11 +8,16 @@ const sql = neon(connectionString);
 
 enum LOG_SEVERITY {
     INFO = "INFO",
+    WARN = "WARN",
     ERROR = "ERROR",
 }
 
 export async function logInfo(message: string) {
     await log(LOG_SEVERITY.INFO, message);
+}
+
+export async function logWarning(message: string) {
+    await log(LOG_SEVERITY.WARN, message);
 }
 
 export async function logError(error: Error | unknown) {

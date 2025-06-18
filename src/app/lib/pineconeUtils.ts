@@ -15,28 +15,28 @@ export type PCQueryResult = {
 // Simple in-memory cache for pinecone records.  This is used to reduce the number of API calls made to Pinecone
 const recordByPageCache = new Map<string, PCQueryResult | null>();
 const indexInstanceCache = new Map<string, Index>();
-let cachedIndexNames: string[] = new Array<string>();
+// let cachedIndexNames: string[] = new Array<string>();
 
-export async function getIndexNames(): Promise<string[]> {
+// export async function getIndexNames(): Promise<string[]> {
 
-    // Use cache if available and not expired
-    if (cachedIndexNames && cachedIndexNames.length > 0) {
-        return cachedIndexNames;
-    }
+//     // Use cache if available and not expired
+//     if (cachedIndexNames && cachedIndexNames.length > 0) {
+//         return cachedIndexNames;
+//     }
 
-    logInfo("Fetching index names from Pinecone...");
+//     logInfo("Fetching index names from Pinecone...");
 
-    const indexList: IndexList = await pinecone.listIndexes();
+//     const indexList: IndexList = await pinecone.listIndexes();
 
-    if (Array.isArray(indexList.indexes)) {
-        cachedIndexNames = indexList.indexes.map(index => index.name);
-        return cachedIndexNames;
-    } else {
-        console.error("Invalid index list format:", indexList);
-        return [];
-    }
+//     if (Array.isArray(indexList.indexes)) {
+//         cachedIndexNames = indexList.indexes.map(index => index.name);
+//         return cachedIndexNames;
+//     } else {
+//         console.error("Invalid index list format:", indexList);
+//         return [];
+//     }
 
-}
+// }
 
 export async function checkIndexExistence(indexName: string): Promise<boolean> {
     try {
@@ -60,8 +60,6 @@ export async function createIndex(indexName: string) {
         },
         waitUntilReady: true,
     });
-
-    console.log(`Index '${indexName}' created successfully.`);
 
 }
 
@@ -191,6 +189,6 @@ export async function upsertRecords(indexName: string, records: IntegratedRecord
 export async function invalidateCache() {
     recordByPageCache.clear();
     indexInstanceCache.clear();
-    cachedIndexNames = [];
+    // cachedIndexNames = [];
     logInfo("Pinecone cache invalidated.");
 }

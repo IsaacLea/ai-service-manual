@@ -19,7 +19,7 @@ const ChatSelection: React.FC<ChatSelectionProps> = ({ className }) => {
       try {
         const response = await fetch("/api/index");
         const data = await response.json();
-        console.log(data);
+
         setIndexes(data.indexes || []);
       } catch (error) {
         console.error("Error fetching indexes:", error);

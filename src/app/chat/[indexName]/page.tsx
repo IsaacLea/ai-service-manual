@@ -2,6 +2,8 @@
 import QueryInput from "../../components/QueryInput";
 import Image from "next/image";
 import { getIndexByName } from "@/app/lib/databaseService";
+import { redirect } from "next/navigation";
+import { logWarning } from "@/app/lib/loggingService";
 
 
 export default async function ChatContent({
@@ -12,6 +14,11 @@ export default async function ChatContent({
 
   const { indexName } = await params
   const indexRecord = await getIndexByName(indexName)
+
+  if (!indexRecord) {
+    logWarning("Invalid index specified: " + indexName + ".  Redirect to home page");
+    redirect("/");
+  }
 
   return (
     <div className="flex flex-1 h-full flex-col items-center justify-center w-full">
