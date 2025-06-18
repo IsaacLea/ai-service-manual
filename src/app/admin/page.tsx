@@ -2,16 +2,18 @@
 
 import { useState, useEffect } from "react";
 import MetadataTable from "../components/MetadataTable";
+import { VectorIndexRow } from "../lib/databaseService";
 
 export default function Home() {
   const [selectedOption, setSelectedOption] = useState("");
   const [metadata, setMetadata] = useState(null);
-  const [indexes, setIndexes] = useState<string[]>([]);
+  const [indexes, setIndexes] = useState<VectorIndexRow[]>([]);
 
   useEffect(() => {
     async function fetchIndexes() {
       try {
         const response = await fetch("/api/index");
+
         const data = await response.json();
         setIndexes(data.indexes || []);
       } catch (error) {
@@ -48,8 +50,8 @@ export default function Home() {
           onChange={handleSelectionChange}
         >
           <option value="" disabled hidden>Select an option</option>
-          {indexes.map((idx) => (
-            <option key={idx} value={idx}>{idx}</option>
+          {indexes.map((index) => (
+            <option key={index.id} value={index.indexName}>{index.indexName}</option>
           ))}
         </select>
 
