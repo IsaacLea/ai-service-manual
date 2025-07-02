@@ -2,8 +2,12 @@ import { NextResponse } from "next/server";
 import { IntegratedRecord, RecordMetadata } from '@pinecone-database/pinecone';
 import { createIndex, getIndexByName, invalidateCache, upsertRecords } from "@/app/lib/pineconeUtils";
 import { put } from "@vercel/blob";
-import { saveIndex } from "@/app/lib/databaseService";
+import { saveFilePages, saveIndex } from "@/app/lib/databaseService";
 import { logError } from "@/app/lib/loggingService";
+import { PageText } from "@/app/lib/definitions";
+
+import { extractTextFromPdf, splitPdf } from "@/app/lib/pdfParser";
+
 
 export async function POST(request: Request) {
   try {
@@ -16,7 +20,15 @@ export async function POST(request: Request) {
     const indexName = formData.get("indexName") as string;
     const pages = formData.get("pages") as Blob;
 
-    // Extract the array of PageText objects from the pages Blob
+    const splitPages = await splitPdf(file);
+
+    await saveFilePages(fileName, indexName, splitPages);
+
+    // Example usage of text extraction:
+    // const extractedText = await extractTextFromPdf(file);
+    // console.log('Extracted text:', extractedText);
+
+    // Extract the text pages Blob
     let pageTexts: any[] = [];
     if (pages) {
       const pagesText = await pages.text();
@@ -25,13 +37,7 @@ export async function POST(request: Request) {
 
     const { url } = await put(fileName, arrayBuffer, { access: 'public', allowOverwrite: true });
 
-    await saveIndex(indexName, indexName, fileName, url)
-
-    const index = getIndexByName(indexName);
-
-    if (!index) {
-      await createIndex(indexName);
-    }
+    await saveIndex(indexName, indexName, fileName, url);
 
     // Map the content pages to records ready for upsert
     const records: IntegratedRecord<RecordMetadata>[] = []
@@ -45,7 +51,7 @@ export async function POST(request: Request) {
       });
     }
 
-    // // Upsert records into the pinecone index
+    // Upsert records into the pinecone index
     await upsertRecords(indexName, records)
 
     // // Invalidate the cache to ensure the new index is recognized
@@ -57,6 +63,11 @@ export async function POST(request: Request) {
     logError(error);
     return NextResponse.json({ error: "Failed to upload file." }, { status: 500 });
   }
+
+
+
+
+
 }
 
 
