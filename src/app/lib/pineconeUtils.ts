@@ -65,12 +65,18 @@ export async function createIndex(indexName: string) {
 
 export async function getIndexByName(indexName: string): Promise<Index> {
 
-    if (indexInstanceCache.has(indexName)) {
-        return indexInstanceCache.get(indexName)!;
-    }
+    // if (indexInstanceCache.has(indexName)) {
+    //     return indexInstanceCache.get(indexName)!;
+    // }
+
+
 
     const idx = pinecone.Index(indexName);
-    indexInstanceCache.set(indexName, idx);
+
+    // If the index does not exist, throw an error
+
+    // Check if the index exists
+    // indexInstanceCache.set(indexName, idx);
 
     return idx;
 }
@@ -176,6 +182,7 @@ export async function describePineconeIndex(indexName: string) {
 
 export async function upsertRecords(indexName: string, records: IntegratedRecord<RecordMetadata>[]) {
 
+    console.log(`Upserting ${records.length} records to index: ${indexName}`);
     const dense_index = await getIndexByName(indexName);
 
     const BATCH_SIZE = 96;

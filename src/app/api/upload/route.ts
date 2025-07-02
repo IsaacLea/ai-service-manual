@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { IntegratedRecord, RecordMetadata } from '@pinecone-database/pinecone';
-import { invalidateCache, upsertRecords } from "@/app/lib/pineconeUtils";
+import { checkIndexExistence, createIndex, invalidateCache, upsertRecords } from "@/app/lib/pineconeUtils";
 import { put } from "@vercel/blob";
 import { saveFilePages, saveIndex } from "@/app/lib/databaseService";
 import { logError } from "@/app/lib/loggingService";
@@ -20,8 +20,31 @@ export async function POST(request: Request) {
     const indexName = formData.get("indexName") as string;
     // const pages = formData.get("pages") as Blob;
 
+
+    // console.log('Page texts:', pageTexts);
+
+    //const extractedText = await extractTextFromPdf(file);
+    //console.log('Extracted text:', extractedText);
+
+    // Extract the text pages Blob
+    // let pageTexts: any[] = [];
+    // if (pages) {
+    //   const pagesText = await pages.text();
+    //   pageTexts = JSON.parse(pagesText);
+    // }
+
+    // console.log('Page texts:', pageTexts);
+
+    // Save the file to Vercel Blob storage
+    const { url } = await put(fileName, arrayBuffer, { access: 'public', allowOverwrite: true });
+
+    // Save the index metadata to the database
+    await saveIndex(indexName, indexName, fileName, url);
+
+    // Split the PDF into individual pages
     const splitPages = await splitPdf(file);
 
+    // Save the split pages to the database
     await saveFilePages(fileName, indexName, splitPages);
 
     const pageTexts: any[] = [];
@@ -38,25 +61,8 @@ export async function POST(request: Request) {
         text: pageText,
       };
 
-      pageTexts1.push(pageTextObj);
+      pageTexts.push(pageTextObj);
     }
-    // console.log('Page texts:', pageTexts);
-
-    //const extractedText = await extractTextFromPdf(file);
-    //console.log('Extracted text:', extractedText);
-
-    // Extract the text pages Blob
-    // let pageTexts: any[] = [];
-    // if (pages) {
-    //   const pagesText = await pages.text();
-    //   pageTexts = JSON.parse(pagesText);
-    // }
-
-    // console.log('Page texts:', pageTexts);
-
-    const { url } = await put(fileName, arrayBuffer, { access: 'public', allowOverwrite: true });
-
-    await saveIndex(indexName, indexName, fileName, url);
 
     // Map the content pages to records ready for upsert
     const records: IntegratedRecord<RecordMetadata>[] = []
@@ -68,6 +74,13 @@ export async function POST(request: Request) {
         chunk_text: page.text,
         page: i + 1,
       });
+    }
+
+    // create the new pinecone vector index if it doesn't exist
+    const indexExists = await checkIndexExistence(indexName);
+
+    if (!indexExists) {
+      await createIndex(indexName);
     }
 
     // Upsert records into the pinecone index

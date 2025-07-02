@@ -34,6 +34,7 @@ export async function getIndexByName(indexName: string) {
 
 }
 
+
 export async function saveFilePages(fileName: string, indexName: string, filePages: Uint8Array[]) {
 
     // Get the vector index record to get the ID
@@ -46,14 +47,21 @@ export async function saveFilePages(fileName: string, indexName: string, filePag
     // Delete existing file pages for this vector index
     await sql`DELETE FROM file_pages WHERE vector_index_id = ${indexRecord.id}`;
 
-    // Insert each page into the file_pages table
-    for (let i = 0; i < filePages.length; i++) {
-        const pageNum = i + 1; // Start page numbers from 1
-        const content = filePages[i];
+    console.log(`Saving ${filePages.length} pages for index '${indexName}' with ID ${indexRecord.id}`);
 
-        await sql`INSERT INTO file_pages(page_num, content, vector_index_id) 
-            VALUES (${pageNum}, ${content}, ${indexRecord.id})`;
+    for (let i = 0; i < filePages.length; i++) {
+        const pageNum = i + 1;
+        const content = Buffer.from(filePages[i]);
+
+        await sql`
+            INSERT INTO file_pages (page_num, content, vector_index_id)
+            VALUES (${pageNum}, ${content}, ${indexRecord.id})
+        `;
+
+
+
     }
+
 }
 
 export async function getIndexes(): Promise<VectorIndexRow[]> {
