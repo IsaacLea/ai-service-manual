@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { IntegratedRecord, RecordMetadata } from '@pinecone-database/pinecone';
-import { createIndex, getIndexByName, invalidateCache, upsertRecords } from "@/app/lib/pineconeUtils";
+import { invalidateCache, upsertRecords } from "@/app/lib/pineconeUtils";
 import { put } from "@vercel/blob";
 import { saveFilePages, saveIndex } from "@/app/lib/databaseService";
 import { logError } from "@/app/lib/loggingService";
@@ -18,22 +18,41 @@ export async function POST(request: Request) {
 
     const fileName = formData.get("fileName") as string;
     const indexName = formData.get("indexName") as string;
-    const pages = formData.get("pages") as Blob;
+    // const pages = formData.get("pages") as Blob;
 
     const splitPages = await splitPdf(file);
 
     await saveFilePages(fileName, indexName, splitPages);
 
-    // Example usage of text extraction:
-    // const extractedText = await extractTextFromPdf(file);
-    // console.log('Extracted text:', extractedText);
+    const pageTexts: any[] = [];
+
+    // Extract text from each page
+    for (let i = 0; i < splitPages.length; i++) {
+      const pageBlob = new Blob([splitPages[i]], { type: "application/pdf" });
+      const pageFile = new File([pageBlob], `page-${i + 1}.pdf`, { type: "application/pdf" });
+      const pageText = await extractTextFromPdf(pageFile);
+
+      // create a new PageText object
+      const pageTextObj: PageText = {
+        page: i + 1,
+        text: pageText,
+      };
+
+      pageTexts1.push(pageTextObj);
+    }
+    // console.log('Page texts:', pageTexts);
+
+    //const extractedText = await extractTextFromPdf(file);
+    //console.log('Extracted text:', extractedText);
 
     // Extract the text pages Blob
-    let pageTexts: any[] = [];
-    if (pages) {
-      const pagesText = await pages.text();
-      pageTexts = JSON.parse(pagesText);
-    }
+    // let pageTexts: any[] = [];
+    // if (pages) {
+    //   const pagesText = await pages.text();
+    //   pageTexts = JSON.parse(pagesText);
+    // }
+
+    // console.log('Page texts:', pageTexts);
 
     const { url } = await put(fileName, arrayBuffer, { access: 'public', allowOverwrite: true });
 

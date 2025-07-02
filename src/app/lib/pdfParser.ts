@@ -1,6 +1,7 @@
 import pdfParse from 'pdf-parse';
 import { PDFDocument } from 'pdf-lib';
 
+// Extract all text from a PDF file
 export async function extractTextFromPdf(pdfFile: File): Promise<string> {
     try {
         const fileArrayBuffer = await pdfFile.arrayBuffer();
@@ -16,6 +17,7 @@ export async function extractTextFromPdf(pdfFile: File): Promise<string> {
 }
 
 
+// Split a PDF file into individual pages and return them as an array of Uint8Array
 export async function splitPdf(pdfFile: File) {
 
     const fileArrayBuffer = await pdfFile.arrayBuffer();
