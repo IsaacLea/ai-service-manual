@@ -16,6 +16,8 @@ interface PDFViewerProps {
 
 export default function PDFViewer({ pdfUrl, pageNumber }: PDFViewerProps) {
 
+  // console.log(`PDFViewer: pdfUrl=${pdfUrl}, pageNumber=${pageNumber}`);
+
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
   const workerSrc = `https://unpkg.com/pdfjs-dist@${pkg.version}/build/pdf.worker.js`;
 
@@ -31,8 +33,8 @@ export default function PDFViewer({ pdfUrl, pageNumber }: PDFViewerProps) {
       }}>
         <Viewer
           fileUrl={pdfUrl}
-          defaultScale={SpecialZoomLevel.PageFit}
           initialPage={pageNumber} // Page numbers are zero-based in the viewer
+          defaultScale={SpecialZoomLevel.PageFit}
 
           plugins={[
             defaultLayoutPluginInstance,
