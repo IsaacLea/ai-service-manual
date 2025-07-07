@@ -25,7 +25,7 @@ export async function splitPdf(pdfFileContent: ArrayBuffer) {
     const data = new Uint8Array(Buffer.from(pdfFileContent));
 
     // Load the PDFDocument
-    const pdfDoc = await PDFDocument.load(data)
+    const pdfDoc = await PDFDocument.load(data);
 
     const numberOfPages = pdfDoc.getPages().length;
     const pagesBytes: Uint8Array[] = [];

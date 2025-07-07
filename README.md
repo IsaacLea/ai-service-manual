@@ -17,6 +17,8 @@ This allows users to interact with the preloaded PDF manual of their choosing us
 ---
 
 ## Implementation Notes
+- **PDF File parsing:**
+  - Server side parsing libraries running in Node were frought with issues trying to get working for various PDFs   and scenarios, so I have stuck with react-pdf library which runs client side for extracting text
 - **Error Handling:**
   - Server-side errors are logged to a Neon Postgres cloud database.
   - A simple error handling strategy is used on the APIs by wrapping logic in `try/catch` blocks.

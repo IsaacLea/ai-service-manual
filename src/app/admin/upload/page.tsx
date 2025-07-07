@@ -9,10 +9,10 @@
  * Ideally, the file processing should be server side, but the react-pdf library is not compatible with server components. 
  * Alternatively the file processing could be turned into a separate micro service using a different language (java/python), but that would be overkill for this project.
  */
-// import { PageText } from "@/app/lib/definitions";
+import { PageText } from "@/app/lib/definitions";
 import '@ungap/with-resolvers'; // Fixes runtime issue with pdfjs library not being able to resolve the Promise.withResolvers
 import { useState } from "react";
-// import { pdfjs } from 'react-pdf';
+import { pdfjs } from 'react-pdf';
 
 
 export default function Upload() {
@@ -24,7 +24,7 @@ export default function Upload() {
 
   // Setup the workerSrc for pdfjs
   // https://github.com/wojtekmaj/react-pdf/blob/main/packages/react-pdf/README.md#legacy-pdfjs-worker
-  // pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+  pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -42,16 +42,16 @@ export default function Upload() {
 
       try {
 
-        // const fileArrayBuffer = await file.arrayBuffer();
-        // const buffer = Buffer.from(fileArrayBuffer);
+        const fileArrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(fileArrayBuffer);
 
-        //const pdfPages = await parsePDF(buffer);
+        const pdfPages = await parsePDF(buffer);
 
-        // if (pdfPages.length === 0) {
-        //   setUploadStatus("No text found in the PDF file.");
-        //   setLoading(false);
-        //   return;
-        // }
+        if (pdfPages.length === 0) {
+          setUploadStatus("No text found in the PDF file.");
+          setLoading(false);
+          return;
+        }
 
         // const uploadContent: UploadContent = {
         //   filename: file.name,
@@ -60,14 +60,14 @@ export default function Upload() {
         //   file: file
         // };
 
-        // const pagesBlob = new Blob([JSON.stringify(pdfPages)], { type: 'application/json' });
+        const pagesBlob = new Blob([JSON.stringify(pdfPages)], { type: 'application/json' });
 
         const formData = new FormData();
         formData.append("fileName", file.name);
         formData.append("file", file);
         formData.append("indexName", indexName);
         formData.append("indexDisplayName", indexDisplayName);
-        // formData.append("pages", pagesBlob);
+        formData.append("pages", pagesBlob);
 
         const response = await fetch("/api/upload", {
           method: "POST",
@@ -91,50 +91,50 @@ export default function Upload() {
     }
   };
 
-  // async function parsePDF(buffer: Buffer<ArrayBuffer>): Promise<PageText[]> {
+  async function parsePDF(buffer: Buffer<ArrayBuffer>): Promise<PageText[]> {
 
-  //   const doc = await pdfjs.getDocument(buffer).promise;
+    const doc = await pdfjs.getDocument(buffer).promise;
 
-  //   const pdfPages: PageText[] = [];
+    const pdfPages: PageText[] = [];
 
-  //   for (let i = 1; i <= doc.numPages; i++) {
+    for (let i = 1; i <= doc.numPages; i++) {
 
-  //     const page = await doc.getPage(i);
-  //     const textContent = await page.getTextContent();
+      const page = await doc.getPage(i);
+      const textContent = await page.getTextContent();
 
-  //     let textItems = "";
-  //     let currentFontName = null;
+      let textItems = "";
+      let currentFontName = null;
 
-  //     for (const item of textContent.items) {
+      for (const item of textContent.items) {
 
-  //       let isNewLine = false;
+        let isNewLine = false;
 
-  //       // When the font changes it indicates a new line
-  //       // This is a bit of a hack, but it works.  There is a hasEOL property but it indicates line wrap not new line
-  //       if ('fontName' in item && item.fontName) {
-  //         if (currentFontName && currentFontName !== item.fontName) {
-  //           isNewLine = true;
-  //         }
-  //         currentFontName = item.fontName;
-  //       }
+        // When the font changes it indicates a new line
+        // This is a bit of a hack, but it works.  There is a hasEOL property but it indicates line wrap not new line
+        if ('fontName' in item && item.fontName) {
+          if (currentFontName && currentFontName !== item.fontName) {
+            isNewLine = true;
+          }
+          currentFontName = item.fontName;
+        }
 
-  //       if (isNewLine) {
-  //         textItems += "\n";
-  //       }
-  //       if ('str' in item && item.str) {
-  //         textItems += item.str;
-  //       }
-  //     }
+        if (isNewLine) {
+          textItems += "\n";
+        }
+        if ('str' in item && item.str) {
+          textItems += item.str;
+        }
+      }
 
-  //     const pageContent: PageText = {
-  //       page: i,
-  //       text: textItems,
-  //     };
+      const pageContent: PageText = {
+        page: i,
+        text: textItems,
+      };
 
-  //     pdfPages.push(pageContent);
-  //   }
-  //   return pdfPages;
-  // }
+      pdfPages.push(pageContent);
+    }
+    return pdfPages;
+  }
 
   return (
     <div className="grid justify-items-center h-full bg-gray-100 w-full">

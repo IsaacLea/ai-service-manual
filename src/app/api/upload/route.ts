@@ -4,9 +4,8 @@ import { checkIndexExistence, createIndex, invalidateCache, upsertRecords } from
 import { put } from "@vercel/blob";
 import { saveIndex } from "@/app/lib/databaseService";
 import { logError } from "@/app/lib/loggingService";
-import { PageText } from "@/app/lib/definitions";
 
-import { extractTextFromPdf, splitPdf } from "@/app/lib/pdfParser";
+// import { extractTextFromPdf, splitPdf } from "@/app/lib/pdfParser";
 
 
 export async function POST(request: Request) {
@@ -18,22 +17,22 @@ export async function POST(request: Request) {
 
     const indexName = formData.get("indexName") as string;
     const indexDisplayName = formData.get("indexDisplayName") as string;
-    // const pages = formData.get("pages") as Blob;
+    const pages = formData.get("pages") as Blob;
 
 
     // console.log('Page texts:', pageTexts);
 
-    //const extractedText = await extractTextFromPdf(file);
+    // const extractedText = await extractTextFromPdf(file);
     //console.log('Extracted text:', extractedText);
 
     // Extract the text pages Blob
-    // let pageTexts: any[] = [];
-    // if (pages) {
-    //   const pagesText = await pages.text();
-    //   pageTexts = JSON.parse(pagesText);
-    // }
+    let pageTexts: any[] = [];
+    if (pages) {
+      const pagesText = await pages.text();
+      pageTexts = JSON.parse(pagesText);
+    }
 
-    // console.log('Page texts:', pageTexts);
+    console.log('Page texts:', pageTexts.length);
 
     const fileName = indexName + ".pdf"
 
@@ -44,27 +43,27 @@ export async function POST(request: Request) {
     await saveIndex(indexName, indexDisplayName, fileName, url);
 
     // Split the PDF into individual pages
-    const splitPages = await splitPdf(arrayBuffer);
+    // const splitPages = await splitPdf(arrayBuffer);
 
     // Save each individual page to Vercel Blob storage
-    savePagesToBlobStorage(indexName, splitPages);
+    // savePagesToBlobStorage(indexName, splitPages);
 
-    const pageTexts: any[] = [];
+    // const pageTexts: any[] = [];
 
     // Extract text from each page
-    for (let i = 0; i < splitPages.length; i++) {
-      const pageBlob = new Blob([splitPages[i]], { type: "application/pdf" });
-      const pageFile = new File([pageBlob], `page-${i + 1}.pdf`, { type: "application/pdf" });
-      const pageText = await extractTextFromPdf(pageFile);
+    // for (let i = 0; i < splitPages.length; i++) {
+    //   const pageBlob = new Blob([splitPages[i]], { type: "application/pdf" });
+    //   const pageFile = new File([pageBlob], `page-${i + 1}.pdf`, { type: "application/pdf" });
+    //   const pageText = await extractTextFromPdf(pageFile);
 
-      // create a new PageText object
-      const pageTextObj: PageText = {
-        page: i + 1,
-        text: pageText,
-      };
+    //   // create a new PageText object
+    //   const pageTextObj: PageText = {
+    //     page: i + 1,
+    //     text: pageText,
+    //   };
 
-      pageTexts.push(pageTextObj);
-    }
+    //   pageTexts.push(pageTextObj);
+    // }
 
     // Map the content pages to records ready for upsert
     const records: IntegratedRecord<RecordMetadata>[] = []
@@ -98,25 +97,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Failed to upload file." }, { status: 500 });
   }
 
-  async function savePagesToBlobStorage(indexName: string, pages: Uint8Array<ArrayBufferLike>[]) {
+  // async function savePagesToBlobStorage(indexName: string, pages: Uint8Array<ArrayBufferLike>[]) {
 
-    const folderName = indexName + "_pages";
+  //   const folderName = indexName + "_pages";
 
-    // Save the split pages to Vercel Blob storage
-    for (let i = 0; i < pages.length; i++) {
+  //   // Save the split pages to Vercel Blob storage
+  //   for (let i = 0; i < pages.length; i++) {
 
-      const pageNum = i + 1;
-      const content = Buffer.from(pages[i]);
-      const fileName = `${indexName}_page${pageNum}.pdf`;
-      const fileFullPath = `${folderName}/${fileName}`;
+  //     const pageNum = i + 1;
+  //     const content = Buffer.from(pages[i]);
+  //     const fileName = `${indexName}_page${pageNum}.pdf`;
+  //     const fileFullPath = `${folderName}/${fileName}`;
 
-      // console.log(`Saving page ${pageNum} to Vercel Blob storage at path: ${fileFullPath}`);
+  //     // console.log(`Saving page ${pageNum} to Vercel Blob storage at path: ${fileFullPath}`);
 
-      await put(fileFullPath, content, { access: 'public', allowOverwrite: true });
+  //     await put(fileFullPath, content, { access: 'public', allowOverwrite: true });
 
-    }
+  //   }
 
-  }
+  // }
 
 
 
