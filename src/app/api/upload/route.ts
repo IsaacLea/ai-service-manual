@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { IntegratedRecord, RecordMetadata } from '@pinecone-database/pinecone';
 import { checkIndexExistence, createIndex, invalidateCache, upsertRecords } from "@/app/lib/pineconeUtils";
 import { put } from "@vercel/blob";
-import { saveFilePages, saveIndex } from "@/app/lib/databaseService";
+import { saveIndex } from "@/app/lib/databaseService";
 import { logError } from "@/app/lib/loggingService";
 import { PageText } from "@/app/lib/definitions";
 
@@ -16,8 +16,8 @@ export async function POST(request: Request) {
     const file = formData.get("file") as File;
     const arrayBuffer = await file.arrayBuffer();
 
-    const fileName = formData.get("fileName") as string;
     const indexName = formData.get("indexName") as string;
+    const indexDisplayName = formData.get("indexDisplayName") as string;
     // const pages = formData.get("pages") as Blob;
 
 
@@ -35,17 +35,19 @@ export async function POST(request: Request) {
 
     // console.log('Page texts:', pageTexts);
 
+    const fileName = indexName + ".pdf"
+
     // Save the file to Vercel Blob storage
-    const { url } = await put(fileName, arrayBuffer, { access: 'public', allowOverwrite: true });
+    const { url } = await put(indexName + ".pdf", arrayBuffer, { access: 'public', allowOverwrite: true });
 
     // Save the index metadata to the database
-    await saveIndex(indexName, indexName, fileName, url);
+    await saveIndex(indexName, indexDisplayName, fileName, url);
 
     // Split the PDF into individual pages
-    const splitPages = await splitPdf(file);
+    const splitPages = await splitPdf(arrayBuffer);
 
-    // Save the split pages to the database
-    await saveFilePages(fileName, indexName, splitPages);
+    // Save each individual page to Vercel Blob storage
+    savePagesToBlobStorage(indexName, splitPages);
 
     const pageTexts: any[] = [];
 
@@ -96,7 +98,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Failed to upload file." }, { status: 500 });
   }
 
+  async function savePagesToBlobStorage(indexName: string, pages: Uint8Array<ArrayBufferLike>[]) {
 
+    const folderName = indexName + "_pages";
+
+    // Save the split pages to Vercel Blob storage
+    for (let i = 0; i < pages.length; i++) {
+
+      const pageNum = i + 1;
+      const content = Buffer.from(pages[i]);
+      const fileName = `${indexName}_page${pageNum}.pdf`;
+      const fileFullPath = `${folderName}/${fileName}`;
+
+      // console.log(`Saving page ${pageNum} to Vercel Blob storage at path: ${fileFullPath}`);
+
+      await put(fileFullPath, content, { access: 'public', allowOverwrite: true });
+
+    }
+
+  }
 
 
 

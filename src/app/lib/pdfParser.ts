@@ -18,11 +18,11 @@ export async function extractTextFromPdf(pdfFile: File): Promise<string> {
 
 
 // Split a PDF file into individual pages and return them as an array of Uint8Array
-export async function splitPdf(pdfFile: File) {
+export async function splitPdf(pdfFileContent: ArrayBuffer) {
 
-    const fileArrayBuffer = await pdfFile.arrayBuffer();
+    // const fileArrayBuffer = await pdfFile.arrayBuffer();
 
-    const data = new Uint8Array(Buffer.from(fileArrayBuffer));
+    const data = new Uint8Array(Buffer.from(pdfFileContent));
 
     // Load the PDFDocument
     const pdfDoc = await PDFDocument.load(data)
@@ -38,6 +38,7 @@ export async function splitPdf(pdfFile: File) {
 
         // copy the page at current index
         const [copiedPage] = await subDocument.copyPages(pdfDoc, [i])
+
         subDocument.addPage(copiedPage);
         const pdfBytes = await subDocument.save();
         pagesBytes.push(pdfBytes);
