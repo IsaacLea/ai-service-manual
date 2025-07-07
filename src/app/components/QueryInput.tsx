@@ -58,7 +58,7 @@ const QueryInput: React.FC<{ indexName: string, fileUrl: string }> = ({ indexNam
       target="_blank" 
       rel="noopener noreferrer" 
       style="color: #2563eb; 
-      text-decoration: underline;" download>${pageNumber}</a>`
+      text-decoration: underline;">${pageNumber}</a>`
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
