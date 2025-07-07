@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MessageDisplay from "./MessageDisplay";
+import PDFViewer from "./PDFViewer";
 import { QueryResult } from "../types";
 
 
@@ -12,6 +13,8 @@ const QueryInput: React.FC<{ indexName: string, fileUrl: string }> = ({ indexNam
   const [submittedQuery, setSubmittedQuery] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPDFViewer, setShowPDFViewer] = useState(false);
+  const [pdfPageNumber, setPdfPageNumber] = useState(0);
 
   const handleButtonClick = async () => {
 
@@ -53,13 +56,34 @@ const QueryInput: React.FC<{ indexName: string, fileUrl: string }> = ({ indexNam
   };
 
   function buildPageUrl(fileUrl: string, pageNumber: number): string {
-    return `<a 
-      href="${fileUrl}#page=${pageNumber}" 
-      target="_blank" 
-      rel="noopener noreferrer" 
+    return `<span 
+      class="page-link"
+      data-page="${pageNumber}"
       style="color: #2563eb; 
-      text-decoration: underline;">${pageNumber}</a>`
+      text-decoration: underline; 
+      cursor: pointer;">${pageNumber}</span>`
   }
+
+  // Use useEffect to set up click handlers after the message is rendered
+  useEffect(() => {
+    const handlePageClick = (event: Event) => {
+      const target = event.target as HTMLElement;
+      if (target && target.classList.contains('page-link')) {
+        const pageNumber = parseInt(target.getAttribute('data-page') || '0');
+        console.log("Opening PDF viewer for page:", pageNumber);
+        setPdfPageNumber(pageNumber - 1); // PDF viewer uses 0-based indexing
+        setShowPDFViewer(true);
+      }
+    };
+
+    // Add event listener to the document
+    document.addEventListener('click', handlePageClick);
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('click', handlePageClick);
+    };
+  }, [message, setPdfPageNumber, setShowPDFViewer]); // Re-run when message changes
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
@@ -89,6 +113,26 @@ const QueryInput: React.FC<{ indexName: string, fileUrl: string }> = ({ indexNam
       >
         {loading ? "Loading..." : "Submit Query"}
       </button>
+
+      {showPDFViewer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg max-w-4xl w-full h-full max-h-[90vh] overflow-hidden">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-black">PDF Viewer - Page {pdfPageNumber + 1}</h3>
+              <button
+                onClick={() => setShowPDFViewer(false)}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Close
+              </button>
+            </div>
+            <div className="h-full">
+              <PDFViewer pdfUrl={fileUrl} pageNumber={pdfPageNumber} />
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="w-9/10 sm:w-100">
         {submittedQuery && <MessageDisplay message={submittedQuery} isUserMessage={true} />}
         {message && <MessageDisplay message={message} isUserMessage={false} />}
