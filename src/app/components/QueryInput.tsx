@@ -5,7 +5,7 @@ import MessageDisplay from "./MessageDisplay";
 import { QueryResult } from "../types";
 
 
-const QueryInput: React.FC<{ indexName: string }> = ({ indexName }) => {
+const QueryInput: React.FC<{ indexName: string, fileUrl: string }> = ({ indexName, fileUrl }) => {
 
   const [message, setMessage] = useState("");
   const [query, setQuery] = useState("");
@@ -40,7 +40,10 @@ const QueryInput: React.FC<{ indexName: string }> = ({ indexName }) => {
       }
       const data: QueryResult = await response.json();
 
-      setMessage(data.message);
+      // Replace any numbers surrounded by [[[ and ]]] with a hyperlink to open the PDF at that page
+      const processedMessage = data.message.replace(/\[\[\[(\d+)\]\]\]/g, (_match, p1) => buildPageUrl(fileUrl, Number(p1)));
+
+      setMessage(processedMessage);
     } catch (error) {
       console.error("Error fetching server action:", error);
       setMessage("An error occurred while fetching the server action.");
@@ -48,6 +51,15 @@ const QueryInput: React.FC<{ indexName: string }> = ({ indexName }) => {
       setLoading(false);
     }
   };
+
+  function buildPageUrl(fileUrl: string, pageNumber: number): string {
+    return `<a 
+      href="${fileUrl}#page=${pageNumber}" 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      style="color: #2563eb; 
+      text-decoration: underline;" download>${pageNumber}</a>`
+  }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {

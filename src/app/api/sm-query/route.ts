@@ -20,7 +20,8 @@ async function queryAIModel(query: string, pcResults: PCQueryResult[]) {
             If there is more than one possible answer to the input query, provide all the relevant answers.  For example if the user asks 'what is the wheel torque' it could mean the front or rear wheel axel.  Provide both answers.
             You will only answer if the relevant information is available in the provided context. 
             If the information is not available, respond with 'I was unable to find information on your question.  Try rephrasing or being more specific.'
-            Always provide the page number where the information was found, and if possible, the section title.'
+            Always provide the page number where the information was found, and if possible, the section title.
+            When specifying the page number, use the format 'Page [[[X]]]' where X is the page number.
             `
     }
 

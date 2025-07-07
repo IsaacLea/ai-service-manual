@@ -15,7 +15,10 @@ const MessageDisplay: React.FC<MessageDisplayProps> = ({ message, isUserMessage 
             : 'mt-4 p-4 border rounded bg-gray-100 text-black w-full'
         }
       >
-        <p className="whitespace-pre-line">{message}</p>
+        {/* dangerouslySetInnerHTML is used here to render page numbers as hyperlinks 
+            This could create issues if the AI response included unexpected html tags but it shouldn't so this is an acceptable risk for now
+        */}
+        <p className="whitespace-pre-line" dangerouslySetInnerHTML={{ __html: message }}></p>
       </div>
     </div>
   );

@@ -45,7 +45,7 @@ export default async function ChatContent({
             </a>
           </p>
         )}
-        <QueryInput indexName={indexName} />
+        <QueryInput indexName={indexName} fileUrl={indexRecord.fileUrl} />
       </div>
     </div >
   );
