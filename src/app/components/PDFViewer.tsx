@@ -19,7 +19,7 @@ export default function PDFViewer({ pdfUrl, pageNumber }: PDFViewerProps) {
   // console.log(`PDFViewer: pdfUrl=${pdfUrl}, pageNumber=${pageNumber}`);
 
   const defaultLayoutPluginInstance = defaultLayoutPlugin({
-    sidebarTabs: (defaultTabs) => [],
+    sidebarTabs: () => [],
   });
   const workerSrc = `https://unpkg.com/pdfjs-dist@${pkg.version}/build/pdf.worker.js`;
 
