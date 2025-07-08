@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Viewer, Worker, SpecialZoomLevel } from '@react-pdf-viewer/core';
+import { Viewer, Worker } from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import pkg from 'pdfjs-dist/package.json';
 
@@ -34,7 +34,7 @@ export default function PDFViewer({ pdfUrl, pageNumber }: PDFViewerProps) {
         <Viewer
           fileUrl={pdfUrl}
           initialPage={pageNumber} // Page numbers are zero-based in the viewer
-          defaultScale={SpecialZoomLevel.PageFit}
+          // defaultScale={SpecialZoomLevel.PageFit}
 
           plugins={[
             defaultLayoutPluginInstance,
