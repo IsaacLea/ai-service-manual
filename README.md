@@ -28,5 +28,13 @@ This allows users to interact with the preloaded PDF manual of their choosing us
 
 ---
 
+## Local Development
+
+- .env.local file needs to be setup with appropriate config values
+
+npm run build
+npm run dev
+
+
 
 
