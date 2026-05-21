@@ -1,6 +1,6 @@
 {
   "name": "ai-service-manual",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
-    "@neondatabase/serverless": "^1.0.1",
+    "@neondatabase/serverless": "^1.1.0",
     "@pinecone-database/pinecone": "^5.1.2",
     "@react-pdf-viewer/core": "^3.12.0",
     "@react-pdf-viewer/default-layout": "^3.12.0",
@@ -32,6 +32,7 @@
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "baseline-browser-mapping": "^2.10.31",
     "eslint": "^9.26.0",
     "eslint-config-next": "16.0.8",
     "tailwindcss": "^4",

@@ -87,7 +87,7 @@ export async function GET(request: Request) {
 
     } catch (error) {
         logError(error);
-        throw error;
+        return NextResponse.json({ error: (error as Error)?.message ?? String(error) }, { status: 500 });
     }
 
 }

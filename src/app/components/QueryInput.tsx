@@ -1,9 +1,12 @@
 'use client'
 
 import React, { useState, useEffect } from "react";
-import MessageDisplay from "./MessageDisplay";
+import ChatMessage from "./ChatMessage";
+import ChatErrorMessage from "./ChatErrorMessage";
 import PDFViewer from "./PDFViewer";
 import { QueryResult } from "../types";
+import { ErrorResult } from "../types";
+import { set } from "zod/v4";
 
 
 const QueryInput: React.FC<{ indexName: string, fileUrl: string }> = ({ indexName, fileUrl }) => {
@@ -11,7 +14,8 @@ const QueryInput: React.FC<{ indexName: string, fileUrl: string }> = ({ indexNam
   const [message, setMessage] = useState("");
   const [query, setQuery] = useState("");
   const [submittedQuery, setSubmittedQuery] = useState("");
-  const [error, setError] = useState("");
+  const [validationError, setValidationError] = useState("");
+  const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPDFViewer, setShowPDFViewer] = useState(false);
   const [pdfPageNumber, setPdfPageNumber] = useState(0);
@@ -19,14 +23,15 @@ const QueryInput: React.FC<{ indexName: string, fileUrl: string }> = ({ indexNam
   const handleButtonClick = async () => {
 
     if (!query) {
-      setError("Query is required.");
+      setValidationError("Query is required.");
       return;
     }
 
     // Assign the trimmed query to a new variable so it doesn't affect the original state when cleared
     const userQuery = query.trim();
 
-    setError("");
+    setValidationError("");
+    setServerError("");
     setMessage("")
     setLoading(true);
     setSubmittedQuery(userQuery);
@@ -39,17 +44,22 @@ const QueryInput: React.FC<{ indexName: string, fileUrl: string }> = ({ indexNam
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch server action");
+        console.error(response);
+        const error: ErrorResult = await response.json();
+        console.error(error);
+        setServerError(error.error || "An error occurred while processing your query.");
+      } else {
+        const data: QueryResult = await response.json();
+        console.log(data);
+
+        // Replace any numbers surrounded by [[[ and ]]] with a hyperlink to open the PDF at that page
+        const processedMessage = data.message.replace(/\[\[\[(\d+)\]\]\]/g, (_match, p1) => buildPageUrl(fileUrl, Number(p1)));
+
+        setMessage(processedMessage);
       }
-      const data: QueryResult = await response.json();
-
-      // Replace any numbers surrounded by [[[ and ]]] with a hyperlink to open the PDF at that page
-      const processedMessage = data.message.replace(/\[\[\[(\d+)\]\]\]/g, (_match, p1) => buildPageUrl(fileUrl, Number(p1)));
-
-      setMessage(processedMessage);
     } catch (error) {
-      console.error("Error fetching server action:", error);
-      setMessage("An error occurred while fetching the server action.");
+      console.error("Error processing query:", error);
+      setMessage("An error occurred while processing your query. <br>" + error);
     } finally {
       setLoading(false);
     }
@@ -105,7 +115,7 @@ const QueryInput: React.FC<{ indexName: string, fileUrl: string }> = ({ indexNam
         className="px-4 py-2 border rounded mb-4 w-full text-black"
         onKeyDown={handleKeyDown}
       />
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {validationError && <p className="text-red-500 text-sm">{validationError}</p>}
       <button
         onClick={handleButtonClick}
         className={`px-4 py-2 rounded text-white ${query.trim() && !loading ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-400 cursor-not-allowed'}`}
@@ -134,8 +144,9 @@ const QueryInput: React.FC<{ indexName: string, fileUrl: string }> = ({ indexNam
       )}
 
       <div className="w-9/10 sm:w-100">
-        {submittedQuery && <MessageDisplay message={submittedQuery} isUserMessage={true} />}
-        {message && <MessageDisplay message={message} isUserMessage={false} />}
+        {submittedQuery && <ChatMessage message={submittedQuery} isUserMessage={true} />}
+        {message && <ChatMessage message={message} isUserMessage={false} />}
+        {serverError && <ChatErrorMessage message={serverError} />}
       </div>
     </div>
   );
